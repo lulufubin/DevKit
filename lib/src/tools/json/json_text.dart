@@ -74,7 +74,32 @@ String chinesePunctToEnglish(String text) {
 
 ({int line, int column}) cursorLineColumn(String text, int offset) {
   final safe = offset.clamp(0, text.length);
-  final before = text.substring(0, safe);
-  final lineBreak = before.lastIndexOf('\n');
-  return (line: '\n'.allMatches(before).length + 1, column: safe - lineBreak);
+  var line = 1;
+  var lineStart = 0;
+  for (var i = 0; i < safe; i++) {
+    if (text.codeUnitAt(i) == 0x0A) {
+      line++;
+      lineStart = i + 1;
+    }
+  }
+  return (line: line, column: safe - lineStart + 1);
+}
+
+/// 统计 UTF-8 字节数，避免 `utf8.encode` 再分配一份大文本。
+int utf8ByteLength(String text) {
+  var n = 0;
+  for (var i = 0; i < text.length; i++) {
+    final unit = text.codeUnitAt(i);
+    if (unit < 0x80) {
+      n += 1;
+    } else if (unit < 0x800) {
+      n += 2;
+    } else if (unit >= 0xD800 && unit <= 0xDBFF) {
+      n += 4;
+      i++;
+    } else {
+      n += 3;
+    }
+  }
+  return n;
 }

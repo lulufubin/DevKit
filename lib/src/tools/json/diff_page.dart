@@ -1,4 +1,5 @@
 import 'package:devkit/src/rust/api/json.dart';
+import 'package:devkit/src/widgets/fast_text_field.dart';
 import 'package:devkit/src/widgets/io_pane.dart';
 import 'package:devkit/src/widgets/tool_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -129,13 +130,7 @@ class _Editor extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Expanded(
-          child: TextField(
-            controller: controller,
-            maxLines: null,
-            expands: true,
-            textAlignVertical: TextAlignVertical.top,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
-          ),
+          child: FastTextField(controller: controller),
         ),
       ],
     );

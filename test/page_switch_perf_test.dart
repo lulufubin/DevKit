@@ -1,4 +1,5 @@
 import 'package:devkit/src/app.dart';
+import 'package:devkit/src/widgets/fast_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -46,9 +47,15 @@ void main() {
   }
 
   Future<void> fillFirstField(WidgetTester tester, String text) async {
-    tester.widget<TextField>(find.byType(TextField).first).controller!.text = text;
+    tester.widget<FastTextField>(find.byType(FastTextField).first).controller.text = text;
     await tester.pump();
   }
+
+  testWidgets('灌入 256KB 单行文本后首次布局保持流畅', (tester) async {
+    await pumpApp(tester);
+    final load = await timeMs(() => fillFirstField(tester, 'A' * (256 * 1024)));
+    expect(load, lessThan(300), reason: '大文本首次显示不应走整份 TextField 排版');
+  }, timeout: const Timeout(Duration(minutes: 2)));
 
   testWidgets('1MB 多行文本下，侧栏和加解密标签切换保持流畅', (tester) async {
     await pumpApp(tester);
@@ -61,7 +68,7 @@ void main() {
     await fillFirstField(tester, multiline(1024));
     expect(await timeMs(() => openCryptoTab(tester, '哈希')), lessThan(300));
     expect(await timeMs(() => openCryptoTab(tester, '编解码')), lessThan(300));
-    expect(fieldText(tester, find.byType(TextField).first).length, greaterThan(1000 * 1024));
+    expect(tester.widget<FastTextField>(find.byType(FastTextField).first).controller.text.length, greaterThan(1000 * 1024));
   }, timeout: const Timeout(Duration(minutes: 2)));
 
   testWidgets('256KB 单行压缩文本下，切到关于后再缩放窗口不应被隐藏页拖死', (tester) async {
@@ -77,6 +84,3 @@ void main() {
   }, timeout: const Timeout(Duration(minutes: 2)));
 }
 
-String fieldText(WidgetTester tester, Finder field) {
-  return tester.widget<TextField>(field).controller?.text ?? '';
-}
