@@ -9,11 +9,14 @@
 - **JSON**：格式化、压缩、结构对比（路径级新增 / 删除 / 变更）
 - **加解密**：Base64 / URL / Hex、MD5 / SHA-1 / SHA-256、AES-256-GCM、HMAC-SHA256、RSA、国密 SM2 / SM3 / SM4
 - **HAR**：导入、筛选、详情、导出，以及复制为 Python `requests`
-- **age CLI**：流式文件加解密（`crates/core` + `devkit` 命令），不把整文件读进内存
 
 开发说明见 [docs/development.md](docs/development.md)，安装与发布见 [docs/packaging.md](docs/packaging.md)。
 
 ## 更新日志
+
+### 0.2.1
+
+- 发布物只保留图形界面安装包 `devkit-desktop-windows-amd64.exe`，不再附带命令行二进制
 
 ### 0.2.0
 
