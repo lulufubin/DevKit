@@ -14,7 +14,20 @@ class _CryptoPageState extends State<CryptoPage> with SingleTickerProviderStateM
   late final TabController _tabs = TabController(length: 6, vsync: this);
 
   @override
+  void initState() {
+    super.initState();
+    _tabs.addListener(_onTab);
+  }
+
+  void _onTab() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   void dispose() {
+    _tabs.removeListener(_onTab);
     _tabs.dispose();
     super.dispose();
   }
@@ -38,8 +51,8 @@ class _CryptoPageState extends State<CryptoPage> with SingleTickerProviderStateM
           ),
           const SizedBox(height: 8),
           Expanded(
-            child: TabBarView(
-              controller: _tabs,
+            child: IndexedStack(
+              index: _tabs.index,
               children: const [_CodecTab(), _HashTab(), _AesTab(), _HmacTab(), _RsaTab(), _SmTab()],
             ),
           ),
