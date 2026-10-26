@@ -31,7 +31,7 @@
 
 1. 向 `main` 开 PR 后，`CI` 会跑 Rust 测试和 `flutter analyze` / `flutter test`。
 2. `CI passed` 通过后，`Automerge` 自动把 PR 合进 `main`。
-3. `main` 上的 CI 通过后，`Tag release` 若还没有对应版本标签，会打标签并调度 `Release`。
-4. `Release` 只打 Windows 桌面安装器，并发布到 GitHub Release。
+3. 合并后 `Automerge` 按 `pubspec.yaml` 打标签，并调度 `Release`（Actions 默认 token 合进 `main` 不会再触发 push 工作流）。
+4. `Release` 只打 Windows 桌面安装器 `devkit-desktop-windows-amd64.exe`。
 
 `pubspec.yaml` 的版本号必须与标签去掉 `v` 后一致。

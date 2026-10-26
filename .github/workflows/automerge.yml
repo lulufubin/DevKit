@@ -17,7 +17,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      actions: read
+      actions: write
     steps:
       - name: Wait for CI and merge
         env:
@@ -50,3 +50,11 @@ jobs:
             exit 1
           fi
           gh pr merge "$PR" --repo "$REPO" --merge
+          # GITHUB_TOKEN 合进 main 不会触发 push 工作流，这里直接打标签并调度图形安装包。
+          MAIN_SHA=$(gh api "repos/${REPO}/git/ref/heads/main" --jq .object.sha)
+          VER=$(gh api "repos/${REPO}/contents/pubspec.yaml?ref=main" --jq .content | base64 -d | grep -E '^version:' | head -n1 | sed -E 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          TAG="v${VER}"
+          if ! gh api "repos/${REPO}/git/ref/tags/${TAG}" >/dev/null 2>&1; then
+            gh api "repos/${REPO}/git/refs" -f ref="refs/tags/${TAG}" -f sha="${MAIN_SHA}"
+            gh workflow run Release --repo "$REPO" --ref "${TAG}"
+          fi
