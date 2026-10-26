@@ -36,7 +36,10 @@ void main() {
 
   testWidgets('workbench shows tool navigation without page header titles', (tester) async {
     await tester.pumpWidget(const DevKitApp());
-    expect(find.text('JSON 格式化'), findsOneWidget);
+    expect(find.text('JSON'), findsOneWidget);
+    expect(find.text('JSON 压缩'), findsNothing);
+    expect(find.text('格式化'), findsOneWidget);
+    expect(find.text('压缩'), findsOneWidget);
     expect(find.text('加解密'), findsOneWidget);
     expect(find.text('HAR'), findsOneWidget);
     expect(find.text('关于'), findsOneWidget);
@@ -63,12 +66,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('下载并安装'), findsOneWidget);
 
-    await tester.tap(find.text('JSON 格式化'));
+    await tester.tap(find.text('JSON'));
     await tester.pumpAndSettle();
     expect(find.textContaining('下载并安装'), findsNothing);
 
     await tester.tap(find.text('关于'));
     await tester.pumpAndSettle();
     expect(find.textContaining('下载并安装'), findsOneWidget);
+  });
+
+  testWidgets('json editor clears text on the same page', (tester) async {
+    await tester.pumpWidget(const DevKitApp());
+    final field = find.byType(TextField).first;
+    await tester.enterText(field, '{"a":1}');
+    await tester.pump();
+    await tester.tap(find.text('清空'));
+    await tester.pump();
+    expect(tester.widget<TextField>(field).controller?.text, isEmpty);
   });
 }

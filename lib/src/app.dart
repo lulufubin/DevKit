@@ -5,8 +5,7 @@ import 'package:devkit/src/tools/about/about_page.dart';
 import 'package:devkit/src/tools/crypto/crypto_page.dart';
 import 'package:devkit/src/tools/har/har_page.dart';
 import 'package:devkit/src/tools/json/diff_page.dart';
-import 'package:devkit/src/tools/json/format_page.dart';
-import 'package:devkit/src/tools/json/minify_page.dart';
+import 'package:devkit/src/tools/json/json_page.dart';
 import 'package:devkit/src/update/github_releases.dart';
 import 'package:devkit/src/widgets/devkit_logo.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +70,7 @@ class _DevKitAppState extends State<DevKitApp> {
   }
 }
 
-enum ToolKind { jsonFormat, jsonMinify, jsonDiff, crypto, har, about }
+enum ToolKind { json, jsonDiff, crypto, har, about }
 
 class WorkbenchShell extends StatefulWidget {
   const WorkbenchShell({super.key, required this.theme, this.releases});
@@ -84,10 +83,9 @@ class WorkbenchShell extends StatefulWidget {
 }
 
 class _WorkbenchShellState extends State<WorkbenchShell> {
-  ToolKind _tool = ToolKind.jsonFormat;
+  ToolKind _tool = ToolKind.json;
   late final List<Widget> _pages = [
-    const JsonFormatPage(),
-    const JsonMinifyPage(),
+    const JsonPage(),
     const JsonDiffPage(),
     const CryptoPage(),
     const HarPage(),
@@ -145,12 +143,7 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
               NavigationRailDestination(
                 icon: Icon(Icons.data_object_outlined),
                 selectedIcon: Icon(Icons.data_object),
-                label: Text('JSON 格式化'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.compress_outlined),
-                selectedIcon: Icon(Icons.compress),
-                label: Text('JSON 压缩'),
+                label: Text('JSON'),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.difference_outlined),

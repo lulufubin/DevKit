@@ -9,7 +9,7 @@ void main() {
 
   testWidgets('shows workbench after rust init', (tester) async {
     await tester.pumpWidget(const DevKitApp());
-    expect(find.text('JSON 格式化'), findsWidgets);
+    expect(find.text('JSON'), findsOneWidget);
     expect(find.text('加解密'), findsOneWidget);
     expect(find.text('HAR'), findsOneWidget);
     expect(find.text('关于'), findsOneWidget);
