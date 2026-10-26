@@ -17,13 +17,13 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            artifact: devkit-windows-amd64.exe
+            artifact: devkit-cli-windows-amd64.exe
             bin: target/release/devkit.exe
           - os: ubuntu-latest
-            artifact: devkit-linux-amd64
+            artifact: devkit-cli-linux-amd64
             bin: target/release/devkit
           - os: macos-latest
-            artifact: devkit-macos-arm64
+            artifact: devkit-cli-macos-arm64
             bin: target/release/devkit
     steps:
       - uses: actions/checkout@v4

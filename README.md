@@ -54,6 +54,11 @@ cargo run -p devkit-cli -- decrypt --input secret.bin.age --output secret.bin
 
 省略 `--passphrase` 会交互提示。脚本里传入口令会出现在进程列表中。
 
+GitHub Release 里：
+
+- `devkit-desktop-windows-amd64.zip`：桌面工作台。解压后运行 `devkit.exe`
+- `devkit-cli-windows-amd64.exe`：命令行加解密，需在终端里带 `encrypt` / `decrypt` 使用。单独双击不是图形界面
+
 ## 约定
 
 - 注释、文档、界面文案用中文
