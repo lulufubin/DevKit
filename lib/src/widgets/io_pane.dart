@@ -6,6 +6,49 @@ import 'package:flutter/material.dart';
 
 const maxTextBytes = 20 * 1024 * 1024;
 
+/// 左右并排的输入 / 输出框，占满父级剩余高度。
+class IoSplit extends StatelessWidget {
+  const IoSplit({
+    super.key,
+    required this.input,
+    required this.output,
+    this.inputLabel = '输入',
+    this.outputLabel = '输出',
+    this.showOpen = true,
+    this.showCopy = true,
+  });
+
+  final TextEditingController input;
+  final TextEditingController output;
+  final String inputLabel;
+  final String outputLabel;
+  final bool showOpen;
+  final bool showCopy;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: IoBox(
+            label: inputLabel,
+            controller: input,
+            onOpen: showOpen ? () => loadFileInto(context, input) : null,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: IoBox(
+            label: outputLabel,
+            controller: output,
+            onCopy: showCopy ? () => copyText(context, output.text) : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class IoPane extends StatelessWidget {
   const IoPane({
     super.key,
@@ -29,12 +72,11 @@ class IoPane extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: Row(
-            children: [
-              Expanded(child: _Box(label: inputLabel, controller: input, onOpen: () => loadFileInto(context, input))),
-              const SizedBox(width: 16),
-              Expanded(child: _Box(label: outputLabel, controller: output, onCopy: () => copyText(context, output.text))),
-            ],
+          child: IoSplit(
+            input: input,
+            output: output,
+            inputLabel: inputLabel,
+            outputLabel: outputLabel,
           ),
         ),
         const SizedBox(height: 12),
@@ -47,13 +89,21 @@ class IoPane extends StatelessWidget {
   }
 }
 
-class _Box extends StatelessWidget {
-  const _Box({required this.label, required this.controller, this.onOpen, this.onCopy});
+class IoBox extends StatelessWidget {
+  const IoBox({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.onOpen,
+    this.onCopy,
+    this.dense = false,
+  });
 
   final String label;
   final TextEditingController controller;
   final VoidCallback? onOpen;
   final VoidCallback? onCopy;
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -64,12 +114,20 @@ class _Box extends StatelessWidget {
           children: [
             Expanded(child: Text(label, style: Theme.of(context).textTheme.titleSmall)),
             if (onOpen != null)
-              TextButton.icon(onPressed: onOpen, icon: const Icon(Icons.folder_open), label: const Text('打开文件')),
+              TextButton.icon(
+                onPressed: onOpen,
+                icon: const Icon(Icons.folder_open, size: 18),
+                label: const Text('打开'),
+              ),
             if (onCopy != null)
-              TextButton.icon(onPressed: onCopy, icon: const Icon(Icons.copy), label: const Text('复制')),
+              TextButton.icon(
+                onPressed: onCopy,
+                icon: const Icon(Icons.copy, size: 18),
+                label: const Text('复制'),
+              ),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: dense ? 4 : 8),
         Expanded(
           child: TextField(
             controller: controller,
