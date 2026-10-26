@@ -1,0 +1,52 @@
+name: Automerge
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  merge:
+    name: Wait for CI then merge
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+    steps:
+      - name: Wait for CI and merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          echo "Waiting for CI on $SHA"
+          conclusion=""
+          for _ in $(seq 1 90); do
+            json=$(gh run list --repo "$REPO" --commit "$SHA" --workflow CI --json status,conclusion --limit 5)
+            pending=$(printf '%s' "$json" | jq '[.[] | select(.status != "completed")] | length')
+            failed=$(printf '%s' "$json" | jq '[.[] | select(.conclusion != null and .conclusion != "success" and .conclusion != "skipped")] | length')
+            succeeded=$(printf '%s' "$json" | jq '[.[] | select(.conclusion == "success")] | length')
+            echo "pending=$pending failed=$failed succeeded=$succeeded"
+            if [ "$failed" -gt 0 ]; then
+              echo "CI failed"
+              exit 1
+            fi
+            if [ "$pending" -eq 0 ] && [ "$succeeded" -gt 0 ]; then
+              conclusion="success"
+              break
+            fi
+            sleep 20
+          done
+          if [ "$conclusion" != "success" ]; then
+            echo "Timed out waiting for CI"
+            exit 1
+          fi
+          gh pr merge "$PR" --repo "$REPO" --merge
