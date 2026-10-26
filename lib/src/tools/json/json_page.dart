@@ -18,6 +18,7 @@ class JsonPage extends StatefulWidget {
 
 class _JsonPageState extends State<JsonPage> with ToolFeedback {
   final _text = TextEditingController();
+  JsonMode _mode = JsonMode.lenient;
   bool _busy = false;
 
   @override
@@ -88,18 +89,29 @@ class _JsonPageState extends State<JsonPage> with ToolFeedback {
               child: Wrap(
                 spacing: 4,
                 runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
+                  SegmentedButton<JsonMode>(
+                    segments: const [
+                      ButtonSegment(value: JsonMode.lenient, label: Text('宽容')),
+                      ButtonSegment(value: JsonMode.strict, label: Text('严格')),
+                    ],
+                    selected: {_mode},
+                    onSelectionChanged: _busy
+                        ? null
+                        : (next) => setState(() => _mode = next.single),
+                  ),
                   _Action(label: '打开', onPressed: _busy ? null : () => loadFileInto(context, _text)),
                   _Action(label: '保存', onPressed: _busy ? null : _save),
                   _Action(label: '清空', onPressed: _busy ? null : () => _text.clear()),
                   _Action(label: '复制', onPressed: _busy ? null : _copy),
                   _Action(
                     label: '格式化',
-                    onPressed: _busy ? null : () => _applyAsync((text) => jsonFormat(text: text)),
+                    onPressed: _busy ? null : () => _applyAsync((text) => jsonFormat(text: text, mode: _mode)),
                   ),
                   _Action(
                     label: '压缩',
-                    onPressed: _busy ? null : () => _applyAsync((text) => jsonMinify(text: text)),
+                    onPressed: _busy ? null : () => _applyAsync((text) => jsonMinify(text: text, mode: _mode)),
                   ),
                   _Action(label: '转义', onPressed: _busy ? null : () => _apply(escapeJsonText)),
                   _Action(label: '去除转义', onPressed: _busy ? null : () => _apply(unescapeJsonText)),

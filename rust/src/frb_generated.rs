@@ -650,10 +650,11 @@ fn wire__crate__api__json__json_diff_impl(
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_left = <String>::sse_decode(&mut deserializer);
             let api_right = <String>::sse_decode(&mut deserializer);
+            let api_mode = <crate::api::json::JsonMode>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, String>((move || {
-                    let output_ok = crate::api::json::json_diff(api_left, api_right)?;
+                    let output_ok = crate::api::json::json_diff(api_left, api_right, api_mode)?;
                     std::result::Result::Ok(output_ok)
                 })())
             }
@@ -683,10 +684,11 @@ fn wire__crate__api__json__json_format_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_text = <String>::sse_decode(&mut deserializer);
+            let api_mode = <crate::api::json::JsonMode>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, String>((move || {
-                    let output_ok = crate::api::json::json_format(api_text)?;
+                    let output_ok = crate::api::json::json_format(api_text, api_mode)?;
                     std::result::Result::Ok(output_ok)
                 })())
             }
@@ -716,10 +718,11 @@ fn wire__crate__api__json__json_minify_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_text = <String>::sse_decode(&mut deserializer);
+            let api_mode = <crate::api::json::JsonMode>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, String>((move || {
-                    let output_ok = crate::api::json::json_minify(api_text)?;
+                    let output_ok = crate::api::json::json_minify(api_text, api_mode)?;
                     std::result::Result::Ok(output_ok)
                 })())
             }
@@ -1558,6 +1561,18 @@ impl SseDecode for crate::api::json::JsonDiffOp {
     }
 }
 
+impl SseDecode for crate::api::json::JsonMode {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::json::JsonMode::Strict,
+            1 => crate::api::json::JsonMode::Lenient,
+            _ => unreachable!("Invalid variant for JsonMode: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2009,6 +2024,22 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::json::JsonDiffOp>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::json::JsonMode {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Strict => 0.into_dart(),
+            Self::Lenient => 1.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::json::JsonMode {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::json::JsonMode> for crate::api::json::JsonMode {
+    fn into_into_dart(self) -> crate::api::json::JsonMode {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::crypto_tools::RsaKeyPair {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -2270,6 +2301,22 @@ impl SseEncode for crate::api::json::JsonDiffOp {
         <crate::api::json::JsonDiffKind>::sse_encode(self.kind, serializer);
         <Option<String>>::sse_encode(self.left, serializer);
         <Option<String>>::sse_encode(self.right, serializer);
+    }
+}
+
+impl SseEncode for crate::api::json::JsonMode {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::json::JsonMode::Strict => 0,
+                crate::api::json::JsonMode::Lenient => 1,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 

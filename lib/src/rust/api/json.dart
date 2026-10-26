@@ -7,18 +7,24 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `eq`, `eq`, `fmt`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `to_mode`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`
 
-Future<String> jsonFormat({required String text}) =>
-    RustLib.instance.api.crateApiJsonJsonFormat(text: text);
+Future<String> jsonFormat({required String text, required JsonMode mode}) =>
+    RustLib.instance.api.crateApiJsonJsonFormat(text: text, mode: mode);
 
-Future<String> jsonMinify({required String text}) =>
-    RustLib.instance.api.crateApiJsonJsonMinify(text: text);
+Future<String> jsonMinify({required String text, required JsonMode mode}) =>
+    RustLib.instance.api.crateApiJsonJsonMinify(text: text, mode: mode);
 
 Future<List<JsonDiffOp>> jsonDiff({
   required String left,
   required String right,
-}) => RustLib.instance.api.crateApiJsonJsonDiff(left: left, right: right);
+  required JsonMode mode,
+}) => RustLib.instance.api.crateApiJsonJsonDiff(
+  left: left,
+  right: right,
+  mode: mode,
+);
 
 enum JsonDiffKind { added, removed, changed }
 
@@ -49,3 +55,5 @@ class JsonDiffOp {
           left == other.left &&
           right == other.right;
 }
+
+enum JsonMode { strict, lenient }

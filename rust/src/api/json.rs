@@ -1,5 +1,11 @@
 use devkit_core::json;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum JsonMode {
+    Strict,
+    Lenient,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum JsonDiffKind {
     Added,
@@ -15,16 +21,23 @@ pub struct JsonDiffOp {
     pub right: Option<String>,
 }
 
-pub fn json_format(text: String) -> Result<String, String> {
-    json::format(&text)
+fn to_mode(mode: JsonMode) -> json::ParseMode {
+    match mode {
+        JsonMode::Strict => json::ParseMode::Strict,
+        JsonMode::Lenient => json::ParseMode::Lenient,
+    }
 }
 
-pub fn json_minify(text: String) -> Result<String, String> {
-    json::minify(&text)
+pub fn json_format(text: String, mode: JsonMode) -> Result<String, String> {
+    json::format(&text, to_mode(mode))
 }
 
-pub fn json_diff(left: String, right: String) -> Result<Vec<JsonDiffOp>, String> {
-    let ops = json::diff(&left, &right)?;
+pub fn json_minify(text: String, mode: JsonMode) -> Result<String, String> {
+    json::minify(&text, to_mode(mode))
+}
+
+pub fn json_diff(left: String, right: String, mode: JsonMode) -> Result<Vec<JsonDiffOp>, String> {
+    let ops = json::diff(&left, &right, to_mode(mode))?;
     Ok(ops
         .into_iter()
         .map(|op| JsonDiffOp {

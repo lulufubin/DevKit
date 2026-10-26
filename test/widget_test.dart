@@ -38,6 +38,8 @@ void main() {
     await tester.pumpWidget(const DevKitApp());
     expect(find.text('JSON'), findsOneWidget);
     expect(find.text('JSON 压缩'), findsNothing);
+    expect(find.text('宽容'), findsOneWidget);
+    expect(find.text('严格'), findsOneWidget);
     expect(find.text('格式化'), findsOneWidget);
     expect(find.text('压缩'), findsOneWidget);
     expect(find.text('加解密'), findsOneWidget);

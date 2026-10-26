@@ -77,6 +77,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   JsonDiffOp dco_decode_json_diff_op(dynamic raw);
 
   @protected
+  JsonMode dco_decode_json_mode(dynamic raw);
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
@@ -174,6 +177,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   JsonDiffOp sse_decode_json_diff_op(SseDeserializer deserializer);
+
+  @protected
+  JsonMode sse_decode_json_mode(SseDeserializer deserializer);
 
   @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
@@ -290,6 +296,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_json_diff_op(JsonDiffOp self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_json_mode(JsonMode self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
