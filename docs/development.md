@@ -37,6 +37,16 @@ GitHub Actions 的 `CI` 工作流会在 PR 和 `main` 上跑同一套测试，�
 
 改完 `rust/src/api/` 必须重新 generate。跨 crate 类型要在 api 模块里重新定义，不要 `pub use` 到 FRB。
 
+## 图标
+
+亮色、暗色 SVG 在 `logo/`。改 `logo/devkit-logo-light.svg` 后重新生成系统图标：
+
+```powershell
+.\scripts\generate-icons.ps1
+```
+
+脚本调用 `cargo run -p devkit-icon-gen`，写出 Windows `app_icon.ico`、macOS `app_icon_*.png`、Linux 窗口图标和 hicolor png。生成结果检入仓库。
+
 ## CLI（age）
 
 ```bash

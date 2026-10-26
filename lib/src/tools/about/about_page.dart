@@ -1,13 +1,16 @@
 import 'dart:io';
 
+import 'package:devkit/src/theme/theme_controller.dart';
 import 'package:devkit/src/update/github_releases.dart';
+import 'package:devkit/src/widgets/devkit_logo.dart';
 import 'package:devkit/src/widgets/tool_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class AboutPage extends StatefulWidget {
-  const AboutPage({super.key, this.releases});
+  const AboutPage({super.key, required this.theme, this.releases});
 
+  final ThemeController theme;
   final GithubReleases? releases;
 
   @override
@@ -119,11 +122,38 @@ class _AboutPageState extends State<AboutPage> with ToolFeedback {
       title: '关于',
       child: ListView(
         children: [
-          Text('DevKit', style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 8),
-          Text('当前版本 $_version'),
+          Row(
+            children: [
+              const DevKitLogo(size: 72),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('DevKit', style: Theme.of(context).textTheme.headlineSmall),
+                    const SizedBox(height: 8),
+                    Text('当前版本 $_version'),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           const Text('JSON、加解密、HAR 工作台。密钥只在本次会话使用。'),
+          const SizedBox(height: 20),
+          Text('外观', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(value: ThemeMode.system, label: Text('跟随系统')),
+              ButtonSegment(value: ThemeMode.light, label: Text('亮色')),
+              ButtonSegment(value: ThemeMode.dark, label: Text('暗色')),
+            ],
+            selected: {widget.theme.mode},
+            onSelectionChanged: (next) {
+              widget.theme.setMode(next.single);
+            },
+          ),
           const SizedBox(height: 20),
           Wrap(
             spacing: 8,

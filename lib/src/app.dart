@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:devkit/src/theme/theme_controller.dart';
 import 'package:devkit/src/tools/about/about_page.dart';
 import 'package:devkit/src/tools/crypto/crypto_page.dart';
 import 'package:devkit/src/tools/har/har_page.dart';
@@ -7,22 +8,62 @@ import 'package:devkit/src/tools/json/diff_page.dart';
 import 'package:devkit/src/tools/json/format_page.dart';
 import 'package:devkit/src/tools/json/minify_page.dart';
 import 'package:devkit/src/update/github_releases.dart';
+import 'package:devkit/src/widgets/devkit_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-class DevKitApp extends StatelessWidget {
-  const DevKitApp({super.key});
+const _seed = Color(0xFF1565C0);
+
+class DevKitApp extends StatefulWidget {
+  const DevKitApp({super.key, this.theme, this.releases});
+
+  final ThemeController? theme;
+  final GithubReleases? releases;
+
+  @override
+  State<DevKitApp> createState() => _DevKitAppState();
+}
+
+class _DevKitAppState extends State<DevKitApp> {
+  late final ThemeController _theme = widget.theme ?? ThemeController();
+  late final bool _ownsTheme = widget.theme == null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_ownsTheme) {
+      _theme.load();
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_ownsTheme) {
+      _theme.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'DevKit',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
-        useMaterial3: true,
-      ),
-      home: const WorkbenchShell(),
+    return ListenableBuilder(
+      listenable: _theme,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'DevKit',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: _seed),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: _seed, brightness: Brightness.dark),
+            useMaterial3: true,
+          ),
+          themeMode: _theme.mode,
+          home: WorkbenchShell(theme: _theme, releases: widget.releases),
+        );
+      },
     );
   }
 }
@@ -30,8 +71,9 @@ class DevKitApp extends StatelessWidget {
 enum ToolKind { jsonFormat, jsonMinify, jsonDiff, crypto, har, about }
 
 class WorkbenchShell extends StatefulWidget {
-  const WorkbenchShell({super.key, this.releases});
+  const WorkbenchShell({super.key, required this.theme, this.releases});
 
+  final ThemeController theme;
   final GithubReleases? releases;
 
   @override
@@ -81,6 +123,10 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
           NavigationRail(
             selectedIndex: _tool.index,
             labelType: NavigationRailLabelType.all,
+            leading: const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: DevKitLogo(size: 40),
+            ),
             onDestinationSelected: (index) {
               setState(() => _tool = ToolKind.values[index]);
             },
@@ -137,7 +183,7 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
       case ToolKind.har:
         return const HarPage();
       case ToolKind.about:
-        return AboutPage(releases: widget.releases);
+        return AboutPage(theme: widget.theme, releases: widget.releases);
     }
   }
 }
