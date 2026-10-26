@@ -19,6 +19,9 @@ MAX_BYTES = 20 * 1024 * 1024
 
 
 def main() -> None:
+    sys.stdin.reconfigure(encoding="utf-8")
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     for raw in sys.stdin:
         line = raw.strip()
         if not line:
@@ -29,7 +32,7 @@ def main() -> None:
         except Exception as exc:  # noqa: BLE001 — 必须回一行，不能把密钥写进消息
             resp = {"id": "", "ok": False, "error": "处理失败"}
             _ = exc
-        sys.stdout.write(json.dumps(resp, ensure_ascii=False) + "\n")
+        sys.stdout.write(json.dumps(resp, ensure_ascii=True) + "\n")
         sys.stdout.flush()
 
 

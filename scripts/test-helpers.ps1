@@ -20,6 +20,12 @@ function Invoke-JsonHelper {
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.UseShellExecute = $false
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+    $psi.StandardInputEncoding = $utf8
+    $psi.StandardOutputEncoding = $utf8
+    $psi.StandardErrorEncoding = $utf8
+    $psi.Environment["PYTHONUTF8"] = "1"
+    $psi.Environment["PYTHONIOENCODING"] = "utf-8"
     $proc = [System.Diagnostics.Process]::Start($psi)
     $proc.StandardInput.WriteLine($line)
     $proc.StandardInput.Close()
