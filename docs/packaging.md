@@ -31,8 +31,8 @@
 
 1. 向 `main` 开 PR 后，`CI` 会跑 Rust 工作区测试、CLI 加解密往返、FRB crate 检查，以及 `flutter analyze` / `flutter test`。
 2. `CI passed` 通过后，`Automerge` 自动把 PR 合进 `main`。
-3. `main` 更新后，`Tag release` 若还没有 `v` + `pubspec.yaml` 版本号的标签，会打上该标签。
-4. 标签触发 `Release`：打 CLI 与 Windows 安装器，并发布到 GitHub Release。
+3. `main` 上的 CI 通过后，`Tag release` 若还没有 `v` + `pubspec.yaml` 版本号的标签，会打上该标签，并显式调度 `Release`（Actions 默认 token 推送的 tag 不会自动触发其他 workflow）。
+4. `Release` 打 CLI 与 Windows 安装器，并发布到 GitHub Release。
 
 手动补打：`git tag v0.2.0 && git push origin v0.2.0`。
 
