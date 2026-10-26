@@ -76,7 +76,6 @@ class _HarPageState extends State<HarPage> with ToolFeedback {
   @override
   Widget build(BuildContext context) {
     return ToolScaffold(
-      title: 'HAR 分析',
       actions: [
         TextButton.icon(onPressed: busy ? null : _import, icon: const Icon(Icons.folder_open), label: const Text('导入 HAR')),
         TextButton(onPressed: items.isEmpty ? null : () => _export(HarExportFormat.har), child: const Text('导出 HAR')),

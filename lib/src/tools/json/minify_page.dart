@@ -36,7 +36,6 @@ class _JsonMinifyPageState extends State<JsonMinifyPage> with ToolFeedback {
   @override
   Widget build(BuildContext context) {
     return ToolScaffold(
-      title: 'JSON 压缩',
       child: IoPane(
         input: _input,
         output: _output,

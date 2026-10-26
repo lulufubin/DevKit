@@ -21,7 +21,6 @@ class _CryptoPageState extends State<CryptoPage> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return ToolScaffold(
-      title: '加解密',
       child: Column(
         children: [
           TabBar(

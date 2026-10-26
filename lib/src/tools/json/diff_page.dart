@@ -38,7 +38,6 @@ class _JsonDiffPageState extends State<JsonDiffPage> with ToolFeedback {
   @override
   Widget build(BuildContext context) {
     return ToolScaffold(
-      title: 'JSON 对比',
       child: Column(
         children: [
           Expanded(

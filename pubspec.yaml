@@ -69,6 +69,13 @@ flutter:
   assets:
     - logo/devkit-logo-light.svg
     - logo/devkit-logo-dark.svg
+  fonts:
+    - family: SourceHanSans
+      fonts:
+        - asset: fonts/SourceHanSansCN-Regular.otf
+          weight: 400
+        - asset: fonts/SourceHanSansCN-Medium.otf
+          weight: 500
 
   # To add assets to your application, add an assets section, like this:
   # assets:

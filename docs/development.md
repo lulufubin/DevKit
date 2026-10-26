@@ -58,6 +58,6 @@ cargo run -p devkit-cli -- decrypt --input secret.bin.age --output secret.bin
 
 ## 约定
 
-- 注释、文档、界面文案用中文
+- 注释、文档、界面文案用中文；界面字体为 `fonts/` 下的思源黑体 CN
 - 不要提交密钥、HAR cookie、`.dart_tool/`、`build/`、`target/`
 - 用户未要求时不要 `git commit` 或 `git push`

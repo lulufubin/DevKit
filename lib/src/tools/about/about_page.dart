@@ -119,7 +119,6 @@ class _AboutPageState extends State<AboutPage> with ToolFeedback {
   @override
   Widget build(BuildContext context) {
     return ToolScaffold(
-      title: '关于',
       child: ListView(
         children: [
           Row(
