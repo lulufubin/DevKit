@@ -55,7 +55,7 @@ if (-not $iscc) {
     throw "Inno Setup 6 not found. Install it to build dist\devkit-desktop-windows-amd64.exe"
 }
 
-$version = "0.2.1"
+$version = "0.2.2"
 $pubspec = Get-Content (Join-Path $Root "pubspec.yaml") -Raw
 if ($pubspec -match '(?m)^version:\s*([0-9]+\.[0-9]+\.[0-9]+)') {
     $version = $Matches[1]

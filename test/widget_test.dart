@@ -28,8 +28,8 @@ void main() {
     PackageInfo.setMockInitialValues(
       appName: 'DevKit',
       packageName: 'devkit',
-      version: '0.2.1',
-      buildNumber: '4',
+      version: '0.2.2',
+      buildNumber: '5',
       buildSignature: '',
     );
   });
