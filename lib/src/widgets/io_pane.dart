@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:devkit/src/widgets/fast_text_field.dart';
 import 'package:devkit/src/widgets/tool_scaffold.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -137,13 +138,7 @@ class IoBox extends StatelessWidget {
         ),
         SizedBox(height: dense ? 4 : 8),
         Expanded(
-          child: TextField(
-            controller: controller,
-            maxLines: null,
-            expands: true,
-            textAlignVertical: TextAlignVertical.top,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
-          ),
+          child: FastTextField(controller: controller),
         ),
       ],
     );

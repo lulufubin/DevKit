@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:devkit/src/rust/api/json.dart';
 import 'package:devkit/src/tools/json/json_text.dart';
+import 'package:devkit/src/widgets/fast_text_field.dart';
 import 'package:devkit/src/widgets/io_pane.dart';
 import 'package:devkit/src/widgets/tool_scaffold.dart';
 import 'package:file_picker/file_picker.dart';
@@ -20,6 +20,10 @@ class _JsonPageState extends State<JsonPage> with ToolFeedback {
   final _text = TextEditingController();
   JsonMode _mode = JsonMode.lenient;
   bool _busy = false;
+  int _lines = 0;
+  int _bytes = 0;
+  int _cursorLine = 0;
+  int _cursorCol = 0;
 
   @override
   void initState() {
@@ -35,7 +39,16 @@ class _JsonPageState extends State<JsonPage> with ToolFeedback {
     super.dispose();
   }
 
-  void _onText() => setState(() {});
+  void _onText() {
+    final text = _text.text;
+    final cursor = cursorLineColumn(text, _text.selection.extentOffset);
+    setState(() {
+      _lines = text.isEmpty ? 0 : '\n'.allMatches(text).length + 1;
+      _bytes = utf8ByteLength(text);
+      _cursorLine = text.isEmpty ? 0 : cursor.line;
+      _cursorCol = text.isEmpty ? 0 : cursor.column;
+    });
+  }
 
   Future<void> _applyAsync(Future<String> Function(String text) run) async {
     setState(() => _busy = true);
@@ -76,9 +89,6 @@ class _JsonPageState extends State<JsonPage> with ToolFeedback {
 
   @override
   Widget build(BuildContext context) {
-    final text = _text.text;
-    final cursor = cursorLineColumn(text, _text.selection.extentOffset);
-    final bytes = utf8.encode(text).length;
     return ToolScaffold(
       child: Column(
         children: [
@@ -124,11 +134,8 @@ class _JsonPageState extends State<JsonPage> with ToolFeedback {
           ),
           const SizedBox(height: 8),
           Expanded(
-            child: TextField(
+            child: FastTextField(
               controller: _text,
-              maxLines: null,
-              expands: true,
-              textAlignVertical: TextAlignVertical.top,
               style: const TextStyle(fontSize: 14, height: 1.4),
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -140,8 +147,7 @@ class _JsonPageState extends State<JsonPage> with ToolFeedback {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '行数 ${_lineCount(text)}    大小 ${_sizeLabel(bytes)}    '
-              '行 ${text.isEmpty ? 0 : cursor.line}    列 ${text.isEmpty ? 0 : cursor.column}',
+              '行数 $_lines    大小 ${_sizeLabel(_bytes)}    行 $_cursorLine    列 $_cursorCol',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -169,5 +175,3 @@ String _sizeLabel(int bytes) {
   }
   return '${(bytes / 1024).toStringAsFixed(1)} KB';
 }
-
-int _lineCount(String text) => text.isEmpty ? 0 : '\n'.allMatches(text).length + 1;
