@@ -112,40 +112,54 @@ class _HashTab extends StatefulWidget {
   State<_HashTab> createState() => _HashTabState();
 }
 
-class _HashTabState extends State<_HashTab> with ToolFeedback {
+class _HashTabState extends State<_HashTab> with ToolFeedback, _CompareOutputs {
   final input = TextEditingController();
   final output = TextEditingController();
   var alg = HashAlg.sha256;
   var encoding = BinaryEncoding.utf8;
+  var compare = false;
 
   @override
   void dispose() {
     input.dispose();
     output.dispose();
+    disposeCompare();
     super.dispose();
+  }
+
+  Future<void> _run() async {
+    try {
+      if (compare) {
+        applyCompare(await compareHash(input: input.text, encoding: encoding, alg: alg), output);
+      } else {
+        output.text = await hashText(input: input.text, encoding: encoding, alg: alg);
+      }
+    } catch (error) {
+      reportError(error);
+    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return _CryptoIo(
       header: [
+        _Switch(label: '对比', value: compare, onChanged: (v) => setState(() => compare = v)),
         _Drop(label: '算法', value: alg, values: HashAlg.values, labelOf: _hash, onChanged: (v) => setState(() => alg = v)),
         _Drop(label: '输入编码', value: encoding, values: BinaryEncoding.values, labelOf: _enc, onChanged: (v) => setState(() => encoding = v)),
       ],
       input: input,
       output: output,
       outputLabel: '哈希（Hex）',
+      compare: compare,
+      rust: rustOut,
+      python: pythonOut,
+      node: nodeOut,
+      rustStatus: rustStatus,
+      pythonStatus: pythonStatus,
+      nodeStatus: nodeStatus,
       actions: [
-        FilledButton(
-          onPressed: () async {
-            try {
-              output.text = await hashText(input: input.text, encoding: encoding, alg: alg);
-            } catch (error) {
-              reportError(error);
-            }
-          },
-          child: const Text('计算'),
-        ),
+        FilledButton(onPressed: _run, child: const Text('计算')),
       ],
     );
   }
@@ -157,38 +171,89 @@ class _AesTab extends StatefulWidget {
   State<_AesTab> createState() => _AesTabState();
 }
 
-class _AesTabState extends State<_AesTab> with ToolFeedback {
+class _AesTabState extends State<_AesTab> with ToolFeedback, _CompareOutputs {
   final input = TextEditingController();
   final key = TextEditingController();
   final output = TextEditingController();
   var inputEnc = BinaryEncoding.utf8;
   var keyEnc = BinaryEncoding.utf8;
   var outputEnc = BinaryEncoding.base64;
+  var compare = false;
+  var aesMode = AesMode.gcm;
+  var keyMode = AesKeyMode.raw;
 
   @override
   void dispose() {
     input.dispose();
     key.dispose();
     output.dispose();
+    disposeCompare();
     super.dispose();
   }
 
   Future<void> _run({required bool encrypt}) async {
     try {
-      output.text = encrypt
-          ? await aes256GcmEncrypt(key: key.text, keyEncoding: keyEnc, plaintext: input.text, plaintextEncoding: inputEnc, outputEncoding: outputEnc)
-          : await aes256GcmDecrypt(key: key.text, keyEncoding: keyEnc, ciphertext: input.text, ciphertextEncoding: inputEnc, outputEncoding: outputEnc);
+      if (compare) {
+        final mode = aesMode;
+        final lockedKey = mode == AesMode.gcm ? AesKeyMode.raw : keyMode;
+        final result = encrypt
+            ? await compareAesEncrypt(
+                key: key.text,
+                keyEncoding: keyEnc,
+                plaintext: input.text,
+                plaintextEncoding: inputEnc,
+                outputEncoding: outputEnc,
+                mode: mode,
+                keyMode: lockedKey,
+              )
+            : await compareAesDecrypt(
+                key: key.text,
+                keyEncoding: keyEnc,
+                ciphertext: input.text,
+                ciphertextEncoding: inputEnc,
+                outputEncoding: outputEnc,
+                mode: mode,
+                keyMode: lockedKey,
+              );
+        applyCompare(result, output);
+      } else {
+        output.text = encrypt
+            ? await aes256GcmEncrypt(key: key.text, keyEncoding: keyEnc, plaintext: input.text, plaintextEncoding: inputEnc, outputEncoding: outputEnc)
+            : await aes256GcmDecrypt(key: key.text, keyEncoding: keyEnc, ciphertext: input.text, ciphertextEncoding: inputEnc, outputEncoding: outputEnc);
+      }
     } catch (error) {
       reportError(error);
     }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final gcm = !compare || aesMode == AesMode.gcm;
     return _CryptoIo(
       header: [
-        const Text('AES-256-GCM，密钥 32 字节，密文前 12 字节为 nonce'),
-        _Line(controller: key, label: '密钥', width: 280),
+        _Switch(label: '对比', value: compare, onChanged: (v) => setState(() => compare = v)),
+        Text(gcm ? 'AES-256-GCM，密钥 32 字节，密文前 12 字节为 nonce' : 'AES-256-CBC，PKCS7；口令派生对齐 crypto-js 的 Salted__'),
+        if (compare)
+          _Drop(
+            label: '模式',
+            value: aesMode,
+            values: AesMode.values,
+            labelOf: (v) => v == AesMode.gcm ? 'GCM' : 'CBC',
+            onChanged: (v) => setState(() {
+              aesMode = v;
+              if (v == AesMode.gcm) keyMode = AesKeyMode.raw;
+            }),
+          ),
+        if (compare && aesMode == AesMode.cbc)
+          _Drop(
+            label: '密钥',
+            value: keyMode,
+            values: AesKeyMode.values,
+            labelOf: (v) => v == AesKeyMode.raw ? '原始密钥' : '口令派生',
+            onChanged: (v) => setState(() => keyMode = v),
+          ),
+        _Line(controller: key, label: compare && keyMode == AesKeyMode.passphrase ? '口令' : '密钥', width: 280),
         _Drop(label: '输入编码', value: inputEnc, values: BinaryEncoding.values, labelOf: _enc, onChanged: (v) => setState(() => inputEnc = v)),
         _Drop(label: '密钥编码', value: keyEnc, values: BinaryEncoding.values, labelOf: _enc, onChanged: (v) => setState(() => keyEnc = v)),
         _Drop(
@@ -202,6 +267,13 @@ class _AesTabState extends State<_AesTab> with ToolFeedback {
       input: input,
       output: output,
       inputLabel: '明文 / 密文',
+      compare: compare,
+      rust: rustOut,
+      python: pythonOut,
+      node: nodeOut,
+      rustStatus: rustStatus,
+      pythonStatus: pythonStatus,
+      nodeStatus: nodeStatus,
       actions: [
         FilledButton(onPressed: () => _run(encrypt: true), child: const Text('加密')),
         OutlinedButton(onPressed: () => _run(encrypt: false), child: const Text('解密')),
@@ -216,40 +288,62 @@ class _HmacTab extends StatefulWidget {
   State<_HmacTab> createState() => _HmacTabState();
 }
 
-class _HmacTabState extends State<_HmacTab> with ToolFeedback {
+class _HmacTabState extends State<_HmacTab> with ToolFeedback, _CompareOutputs {
   final key = TextEditingController();
   final message = TextEditingController();
   final output = TextEditingController();
+  var compare = false;
 
   @override
   void dispose() {
     key.dispose();
     message.dispose();
     output.dispose();
+    disposeCompare();
     super.dispose();
+  }
+
+  Future<void> _run() async {
+    try {
+      if (compare) {
+        applyCompare(
+          await compareHmac(
+            key: key.text,
+            keyEncoding: BinaryEncoding.utf8,
+            message: message.text,
+            messageEncoding: BinaryEncoding.utf8,
+          ),
+          output,
+        );
+      } else {
+        output.text = await hmacSha256(key: key.text, keyEncoding: BinaryEncoding.utf8, message: message.text, messageEncoding: BinaryEncoding.utf8);
+      }
+    } catch (error) {
+      reportError(error);
+    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return _CryptoIo(
       header: [
+        _Switch(label: '对比', value: compare, onChanged: (v) => setState(() => compare = v)),
         _Line(controller: key, label: '密钥', width: 320),
       ],
       input: message,
       output: output,
       inputLabel: '消息',
       outputLabel: 'HMAC-SHA256（Hex）',
+      compare: compare,
+      rust: rustOut,
+      python: pythonOut,
+      node: nodeOut,
+      rustStatus: rustStatus,
+      pythonStatus: pythonStatus,
+      nodeStatus: nodeStatus,
       actions: [
-        FilledButton(
-          onPressed: () async {
-            try {
-              output.text = await hmacSha256(key: key.text, keyEncoding: BinaryEncoding.utf8, message: message.text, messageEncoding: BinaryEncoding.utf8);
-            } catch (error) {
-              reportError(error);
-            }
-          },
-          child: const Text('计算'),
-        ),
+        FilledButton(onPressed: _run, child: const Text('计算')),
       ],
     );
   }
@@ -491,6 +585,31 @@ class _SmTabState extends State<_SmTab> with ToolFeedback {
 }
 
 /// 选项条 + 可选密钥区 + 拉满剩余空间的输入/输出。
+mixin _CompareOutputs<T extends StatefulWidget> on State<T> {
+  final rustOut = TextEditingController();
+  final pythonOut = TextEditingController();
+  final nodeOut = TextEditingController();
+  String rustStatus = '';
+  String pythonStatus = '';
+  String nodeStatus = '';
+
+  void disposeCompare() {
+    rustOut.dispose();
+    pythonOut.dispose();
+    nodeOut.dispose();
+  }
+
+  void applyCompare(CompareResult result, TextEditingController single) {
+    rustOut.text = result.rust.output;
+    pythonOut.text = result.python.output;
+    nodeOut.text = result.node.output;
+    rustStatus = result.rust.message;
+    pythonStatus = result.python.message;
+    nodeStatus = result.node.message;
+    single.text = result.rust.output;
+  }
+}
+
 class _CryptoIo extends StatelessWidget {
   const _CryptoIo({
     required this.input,
@@ -502,6 +621,13 @@ class _CryptoIo extends StatelessWidget {
     this.ioFlex = 5,
     this.inputLabel = '输入',
     this.outputLabel = '输出',
+    this.compare = false,
+    this.rust,
+    this.python,
+    this.node,
+    this.rustStatus = '',
+    this.pythonStatus = '',
+    this.nodeStatus = '',
   });
 
   final List<Widget> header;
@@ -513,6 +639,13 @@ class _CryptoIo extends StatelessWidget {
   final String inputLabel;
   final String outputLabel;
   final List<Widget> actions;
+  final bool compare;
+  final TextEditingController? rust;
+  final TextEditingController? python;
+  final TextEditingController? node;
+  final String rustStatus;
+  final String pythonStatus;
+  final String nodeStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -535,12 +668,31 @@ class _CryptoIo extends StatelessWidget {
         ],
         Expanded(
           flex: ioFlex,
-          child: IoSplit(
-            input: input,
-            output: output,
-            inputLabel: inputLabel,
-            outputLabel: outputLabel,
-          ),
+          child: compare && rust != null && python != null && node != null
+              ? Row(
+                  children: [
+                    Expanded(child: IoBox(label: inputLabel, controller: input, onOpen: () => loadFileInto(context, input))),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: Row(
+                        children: [
+                          Expanded(child: IoBox(label: 'Rust', controller: rust!, status: rustStatus, onCopy: () => copyText(context, rust!.text), dense: true)),
+                          const SizedBox(width: 8),
+                          Expanded(child: IoBox(label: 'Python', controller: python!, status: pythonStatus, onCopy: () => copyText(context, python!.text), dense: true)),
+                          const SizedBox(width: 8),
+                          Expanded(child: IoBox(label: 'crypto-js', controller: node!, status: nodeStatus, onCopy: () => copyText(context, node!.text), dense: true)),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              : IoSplit(
+                  input: input,
+                  output: output,
+                  inputLabel: inputLabel,
+                  outputLabel: outputLabel,
+                ),
         ),
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 8, children: actions),

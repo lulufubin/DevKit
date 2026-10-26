@@ -56,6 +56,24 @@ cargo run -p devkit-cli -- decrypt --input secret.bin.age --output secret.bin
 
 省略 `--passphrase` 会交互提示。脚本里传入口令会出现在进程列表中。
 
+## 加解密库对比
+
+哈希 / AES / HMAC 页的「对比」开关默认关闭。打开后同一输入分别走 Rust（进程内）、Python 助手（Nuitka + `cryptography`）、Node 助手（便携 `node.exe` + `crypto-js`）。
+
+助手查找顺序：
+
+1. `devkit.exe` 同级的 `helpers/crypto-python` 与 `helpers/crypto-node`
+2. 仓库 `helpers/dist/`（本地先跑打包脚本）
+
+找不到时该列提示「未找到助手，请先按文档打包」（Windows）或「当前安装包未带 Python / Node 助手」。不使用本机 PATH 上的 `python` / `node`。
+
+```powershell
+.\scripts\pack-helpers.ps1
+.\scripts\test-helpers.ps1
+```
+
+源码自测用 `uv` 管 Python（`helpers/crypto-python/pyproject.toml`），用 `pnpm` 管 Node（`helpers/crypto-node`）。不要直接调用系统 `python` / `pip` / `npm`。密钥只经 stdin，不要写进日志。
+
 ## 约定
 
 - 注释、文档、界面文案用中文；界面字体为 `fonts/` 下的思源黑体 CN

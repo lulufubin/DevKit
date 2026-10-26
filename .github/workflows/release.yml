@@ -20,7 +20,30 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: helpers/crypto-node/pnpm-lock.yaml
+      - name: Pack Python / Node helpers
+        shell: pwsh
+        run: .\scripts\pack-helpers.ps1
       - run: flutter build windows --release
+      - name: Copy helpers into app bundle
+        shell: pwsh
+        run: |
+          $src = Join-Path $pwd "build\windows\x64\runner\Release"
+          if (-not (Test-Path $src)) { $src = Join-Path $pwd "build\windows\runner\Release" }
+          $dest = Join-Path $src "helpers"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Copy-Item "helpers\dist\crypto-python" (Join-Path $dest "crypto-python") -Recurse -Force
+          Copy-Item "helpers\dist\crypto-node" (Join-Path $dest "crypto-node") -Recurse -Force
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
       - name: Compile installer

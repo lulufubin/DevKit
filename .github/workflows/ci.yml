@@ -33,6 +33,28 @@ jobs:
           cargo run -p devkit-cli --locked -- decrypt --input "$WORK/plain.txt.age" --output "$WORK/out.txt" --passphrase testpass
           diff "$WORK/plain.txt" "$WORK/out.txt"
 
+  helpers:
+    name: helper source tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: helpers/crypto-node/pnpm-lock.yaml
+      - run: uv sync --project helpers/crypto-python
+      - name: Install crypto-js
+        working-directory: helpers/crypto-node
+        run: pnpm install --prod
+      - run: pwsh -File scripts/test-helpers.ps1
+
   flutter:
     name: flutter analyze + test
     runs-on: ubuntu-latest
@@ -49,10 +71,11 @@ jobs:
   ci-ok:
     name: CI passed
     if: always()
-    needs: [rust, flutter]
+    needs: [rust, helpers, flutter]
     runs-on: ubuntu-latest
     steps:
       - name: Require rust and flutter jobs
         run: |
           test "${{ needs.rust.result }}" = "success"
+          test "${{ needs.helpers.result }}" = "success"
           test "${{ needs.flutter.result }}" = "success"

@@ -28,6 +28,9 @@ if (-not (Get-Command flutter -ErrorAction SilentlyContinue)) {
     throw "flutter not on PATH. Desktop installer is the only pack output."
 }
 
+Write-Host "Packing Python / Node helpers..."
+& (Join-Path $Root "scripts\pack-helpers.ps1")
+
 Write-Host "Building Flutter Windows desktop app..."
 flutter build windows --release
 if ($LASTEXITCODE -ne 0) {
@@ -41,6 +44,11 @@ if (-not (Test-Path $releaseDir)) {
 if (-not (Test-Path $releaseDir)) {
     throw "Flutter Windows build finished but Release folder was not found."
 }
+
+$helpersDest = Join-Path $releaseDir "helpers"
+New-Item -ItemType Directory -Force -Path $helpersDest | Out-Null
+Copy-Item (Join-Path $Root "helpers\dist\crypto-python") (Join-Path $helpersDest "crypto-python") -Recurse -Force
+Copy-Item (Join-Path $Root "helpers\dist\crypto-node") (Join-Path $helpersDest "crypto-node") -Recurse -Force
 
 $iscc = Get-InnoCompiler
 if (-not $iscc) {

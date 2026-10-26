@@ -1,7 +1,9 @@
 //! String-based developer crypto helpers for the desktop UI.
 
+use aes::Aes256;
 use aes_gcm::aead::{Aead, KeyInit};
 use aes_gcm::{Aes256Gcm, Key, Nonce};
+use cbc::cipher::{generic_array::GenericArray, BlockDecryptMut, BlockEncryptMut, KeyIvInit};
 use base64::engine::general_purpose::STANDARD as BASE64;
 use base64::Engine;
 use getrandom::SysRng;
@@ -66,7 +68,10 @@ pub struct Sm2KeyPair {
 }
 
 const AES_NONCE_LEN: usize = 12;
+const AES_CBC_IV_LEN: usize = 16;
 const AES_KEY_LEN: usize = 32;
+const OPENSSL_MAGIC: &[u8] = b"Salted__";
+const OPENSSL_SALT_LEN: usize = 8;
 const SM4_BLOCK_LEN: usize = 16;
 const SM2_PRIV_LEN: usize = 32;
 
@@ -152,6 +157,176 @@ pub fn aes256_gcm_decrypt(
         .decrypt(nonce, body)
         .map_err(|err| err.to_string())?;
     encode_bytes(&plaintext, output_encoding)
+}
+
+type Aes256CbcEnc = cbc::Encryptor<Aes256>;
+type Aes256CbcDec = cbc::Decryptor<Aes256>;
+
+/// AES-256-CBC，PKCS7。输出为 IV（16 字节）+ 密文。
+pub fn aes256_cbc_encrypt(
+    key: &str,
+    key_encoding: BinaryEncoding,
+    plaintext: &str,
+    plaintext_encoding: BinaryEncoding,
+    output_encoding: BinaryEncoding,
+    iv: Option<&[u8]>,
+) -> Result<String, String> {
+    let key_bytes = aes_key(key, key_encoding)?;
+    let plaintext = decode_bytes(plaintext, plaintext_encoding)?;
+    let iv_bytes = aes_cbc_iv(iv)?;
+    let ciphertext = aes_cbc_encrypt_blocks(&key_bytes, &iv_bytes, &plaintext);
+    let mut packed = Vec::with_capacity(AES_CBC_IV_LEN + ciphertext.len());
+    packed.extend_from_slice(&iv_bytes);
+    packed.extend_from_slice(&ciphertext);
+    encode_bytes(&packed, output_encoding)
+}
+
+pub fn aes256_cbc_decrypt(
+    key: &str,
+    key_encoding: BinaryEncoding,
+    ciphertext: &str,
+    ciphertext_encoding: BinaryEncoding,
+    output_encoding: BinaryEncoding,
+) -> Result<String, String> {
+    let key_bytes = aes_key(key, key_encoding)?;
+    let packed = decode_bytes(ciphertext, ciphertext_encoding)?;
+    if packed.len() < AES_CBC_IV_LEN + 16 {
+        return Err("AES-CBC 密文过短".to_string());
+    }
+    let (iv, body) = packed.split_at(AES_CBC_IV_LEN);
+    let plaintext = aes_cbc_decrypt_blocks(&key_bytes, iv, body)?;
+    encode_bytes(&plaintext, output_encoding)
+}
+
+/// OpenSSL / crypto-js 默认口令派生：EVP_BytesToKey(MD5) + `Salted__` 头，输出 Base64。
+pub fn aes256_cbc_passphrase_encrypt(
+    password: &str,
+    plaintext: &str,
+    plaintext_encoding: BinaryEncoding,
+    salt: Option<&[u8]>,
+) -> Result<String, String> {
+    ensure_size_limit(password, MAX_TEXT_BYTES)?;
+    if password.is_empty() {
+        return Err("口令不能为空".to_string());
+    }
+    let plaintext = decode_bytes(plaintext, plaintext_encoding)?;
+    let salt_bytes = aes_salt(salt)?;
+    let (key, iv) = evp_bytes_to_key(password.as_bytes(), &salt_bytes, AES_KEY_LEN, AES_CBC_IV_LEN);
+    let ciphertext = aes_cbc_encrypt_blocks(&key, &iv, &plaintext);
+    let mut packed = Vec::with_capacity(OPENSSL_MAGIC.len() + OPENSSL_SALT_LEN + ciphertext.len());
+    packed.extend_from_slice(OPENSSL_MAGIC);
+    packed.extend_from_slice(&salt_bytes);
+    packed.extend_from_slice(&ciphertext);
+    Ok(BASE64.encode(packed))
+}
+
+pub fn aes256_cbc_passphrase_decrypt(password: &str, salted_b64: &str) -> Result<String, String> {
+    ensure_size_limit(password, MAX_TEXT_BYTES)?;
+    ensure_size_limit(salted_b64, MAX_TEXT_BYTES)?;
+    if password.is_empty() {
+        return Err("口令不能为空".to_string());
+    }
+    let packed = BASE64
+        .decode(salted_b64.trim())
+        .map_err(|err| err.to_string())?;
+    if packed.len() < OPENSSL_MAGIC.len() + OPENSSL_SALT_LEN + 16
+        || &packed[..OPENSSL_MAGIC.len()] != OPENSSL_MAGIC
+    {
+        return Err("不是 OpenSSL Salted 密文".to_string());
+    }
+    let salt = &packed[OPENSSL_MAGIC.len()..OPENSSL_MAGIC.len() + OPENSSL_SALT_LEN];
+    let body = &packed[OPENSSL_MAGIC.len() + OPENSSL_SALT_LEN..];
+    let (key, iv) = evp_bytes_to_key(password.as_bytes(), salt, AES_KEY_LEN, AES_CBC_IV_LEN);
+    let plaintext = aes_cbc_decrypt_blocks(&key, &iv, body)?;
+    String::from_utf8(plaintext).map_err(|err| err.to_string())
+}
+
+pub fn evp_bytes_to_key(password: &[u8], salt: &[u8], key_len: usize, iv_len: usize) -> (Vec<u8>, Vec<u8>) {
+    use md5::Digest;
+    let need = key_len + iv_len;
+    let mut out = Vec::with_capacity(need);
+    let mut prev = Vec::new();
+    while out.len() < need {
+        let mut hasher = md5::Md5::new();
+        hasher.update(&prev);
+        hasher.update(password);
+        hasher.update(salt);
+        prev = hasher.finalize().to_vec();
+        out.extend_from_slice(&prev);
+    }
+    (out[..key_len].to_vec(), out[key_len..need].to_vec())
+}
+
+pub fn split_gcm_nonce(packed: &[u8]) -> Result<(&[u8], &[u8]), String> {
+    if packed.len() < AES_NONCE_LEN + 16 {
+        return Err("AES-GCM 密文过短".to_string());
+    }
+    Ok(packed.split_at(AES_NONCE_LEN))
+}
+
+pub fn split_cbc_iv(packed: &[u8]) -> Result<(&[u8], &[u8]), String> {
+    if packed.len() < AES_CBC_IV_LEN + 16 {
+        return Err("AES-CBC 密文过短".to_string());
+    }
+    Ok(packed.split_at(AES_CBC_IV_LEN))
+}
+
+pub fn split_openssl_salt(packed: &[u8]) -> Result<(&[u8], &[u8]), String> {
+    if packed.len() < OPENSSL_MAGIC.len() + OPENSSL_SALT_LEN + 16
+        || &packed[..OPENSSL_MAGIC.len()] != OPENSSL_MAGIC
+    {
+        return Err("不是 OpenSSL Salted 密文".to_string());
+    }
+    let salt = &packed[OPENSSL_MAGIC.len()..OPENSSL_MAGIC.len() + OPENSSL_SALT_LEN];
+    let body = &packed[OPENSSL_MAGIC.len() + OPENSSL_SALT_LEN..];
+    Ok((salt, body))
+}
+
+fn aes_cbc_encrypt_blocks(key: &[u8], iv: &[u8], plaintext: &[u8]) -> Vec<u8> {
+    let mut buf = pkcs7_pad(plaintext, AES_CBC_IV_LEN);
+    let mut enc = Aes256CbcEnc::new(key.into(), iv.into());
+    for chunk in buf.chunks_exact_mut(AES_CBC_IV_LEN) {
+        enc.encrypt_block_mut(GenericArray::from_mut_slice(chunk));
+    }
+    buf
+}
+
+fn aes_cbc_decrypt_blocks(key: &[u8], iv: &[u8], body: &[u8]) -> Result<Vec<u8>, String> {
+    if body.is_empty() || body.len() % AES_CBC_IV_LEN != 0 {
+        return Err("AES-CBC 密文长度必须是 16 的倍数".to_string());
+    }
+    let mut buf = body.to_vec();
+    let mut dec = Aes256CbcDec::new(key.into(), iv.into());
+    for chunk in buf.chunks_exact_mut(AES_CBC_IV_LEN) {
+        dec.decrypt_block_mut(GenericArray::from_mut_slice(chunk));
+    }
+    pkcs7_unpad(&buf, AES_CBC_IV_LEN)
+}
+
+fn aes_cbc_iv(iv: Option<&[u8]>) -> Result<[u8; AES_CBC_IV_LEN], String> {
+    let mut iv_bytes = [0u8; AES_CBC_IV_LEN];
+    if let Some(iv) = iv {
+        if iv.len() != AES_CBC_IV_LEN {
+            return Err("AES-CBC IV 必须是 16 字节".to_string());
+        }
+        iv_bytes.copy_from_slice(iv);
+    } else {
+        OsRng.fill_bytes(&mut iv_bytes);
+    }
+    Ok(iv_bytes)
+}
+
+fn aes_salt(salt: Option<&[u8]>) -> Result<[u8; OPENSSL_SALT_LEN], String> {
+    let mut salt_bytes = [0u8; OPENSSL_SALT_LEN];
+    if let Some(salt) = salt {
+        if salt.len() != OPENSSL_SALT_LEN {
+            return Err("salt 必须是 8 字节".to_string());
+        }
+        salt_bytes.copy_from_slice(salt);
+    } else {
+        OsRng.fill_bytes(&mut salt_bytes);
+    }
+    Ok(salt_bytes)
 }
 
 pub fn rsa_generate_keypair(bits: Option<u32>) -> Result<RsaKeyPair, String> {
@@ -390,7 +565,7 @@ pub fn sm4_decrypt(
     encode_bytes(&plaintext, output_encoding)
 }
 
-fn decode_bytes(input: &str, encoding: BinaryEncoding) -> Result<Vec<u8>, String> {
+pub(crate) fn decode_bytes(input: &str, encoding: BinaryEncoding) -> Result<Vec<u8>, String> {
     ensure_size_limit(input, MAX_TEXT_BYTES)?;
     match encoding {
         BinaryEncoding::Utf8 => Ok(input.as_bytes().to_vec()),
@@ -399,7 +574,7 @@ fn decode_bytes(input: &str, encoding: BinaryEncoding) -> Result<Vec<u8>, String
     }
 }
 
-fn encode_bytes(bytes: &[u8], encoding: BinaryEncoding) -> Result<String, String> {
+pub(crate) fn encode_bytes(bytes: &[u8], encoding: BinaryEncoding) -> Result<String, String> {
     match encoding {
         BinaryEncoding::Utf8 => String::from_utf8(bytes.to_vec()).map_err(|err| err.to_string()),
         BinaryEncoding::Hex => Ok(hex::encode(bytes)),
@@ -437,7 +612,7 @@ fn digest_hex(alg: HashAlg, data: &[u8]) -> String {
 fn aes_key(key: &str, encoding: BinaryEncoding) -> Result<Vec<u8>, String> {
     let bytes = decode_bytes(key, encoding)?;
     if bytes.len() != AES_KEY_LEN {
-        return Err("AES-256-GCM 密钥必须是 32 字节".to_string());
+        return Err("AES-256 密钥必须是 32 字节".to_string());
     }
     Ok(bytes)
 }
@@ -597,6 +772,45 @@ mod tests {
         .unwrap();
         assert_eq!(plain, "secret payload");
         assert!(packed.len() > 24);
+    }
+
+    #[test]
+    fn aes256_cbc_fixed_iv_roundtrip() {
+        let key = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
+        let iv = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let packed = aes256_cbc_encrypt(
+            key,
+            BinaryEncoding::Hex,
+            "hello DevKit",
+            BinaryEncoding::Utf8,
+            BinaryEncoding::Hex,
+            Some(&iv),
+        )
+        .unwrap();
+        assert!(packed.starts_with("000102030405060708090a0b0c0d0e0f"));
+        let plain = aes256_cbc_decrypt(
+            key,
+            BinaryEncoding::Hex,
+            &packed,
+            BinaryEncoding::Hex,
+            BinaryEncoding::Utf8,
+        )
+        .unwrap();
+        assert_eq!(plain, "hello DevKit");
+    }
+
+    #[test]
+    fn aes256_cbc_passphrase_fixed_salt() {
+        let salt = hex::decode("0102030405060708").unwrap();
+        let salted = aes256_cbc_passphrase_encrypt("secret", "hello DevKit", BinaryEncoding::Utf8, Some(&salt))
+            .unwrap();
+        let raw = BASE64.decode(&salted).unwrap();
+        assert_eq!(&raw[..8], b"Salted__");
+        assert_eq!(&raw[8..16], salt);
+        assert_eq!(
+            aes256_cbc_passphrase_decrypt("secret", &salted).unwrap(),
+            "hello DevKit"
+        );
     }
 
     #[test]
