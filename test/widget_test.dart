@@ -1,13 +1,11 @@
-import 'package:devkit/main.dart';
+import 'package:devkit/src/app.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('shows streaming encrypt UI', (tester) async {
+  testWidgets('workbench shows tool navigation', (tester) async {
     await tester.pumpWidget(const DevKitApp());
-    expect(find.text('DevKit'), findsOneWidget);
-    expect(find.text('加密'), findsOneWidget);
-    expect(find.text('解密'), findsOneWidget);
-    expect(find.text('输入文件'), findsOneWidget);
-    expect(find.text('输出文件'), findsOneWidget);
+    expect(find.text('JSON 格式化'), findsWidgets);
+    expect(find.text('加解密'), findsOneWidget);
+    expect(find.text('HAR'), findsOneWidget);
   });
 }

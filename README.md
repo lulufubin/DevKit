@@ -1,85 +1,61 @@
 # DevKit
 
-Local-first developer toolkit. First slice: **streaming age encrypt/decrypt** for large files.
+跨平台桌面工作台：Flutter 做界面，Rust 做计算。支持 Windows / macOS / Linux。
 
-- **Core:** Rust crate (`crates/core`) streams files and never loads them whole into memory.
-- **CLI:** `devkit` binary shares that crate.
-- **Desktop:** Flutter Windows/Linux/macOS UI talks to the same core through flutter_rust_bridge.
+## 第一期工具
 
-JSON compare, HAR analysis, and other tools are intentionally not in this slice.
+- JSON 格式化、压缩、结构对比
+- 编解码、哈希、AES-256-GCM、HMAC、RSA、国密 SM2 / SM3 / SM4
+- HAR 导入、筛选、详情、导出，以及复制为 Python `requests`
+- 另有流式 age 文件加解密（`crates/core` + CLI），不把整文件读进内存
 
-## Prerequisites
+密钥只在本次会话使用，不写磁盘。不做 HAR 重放。
 
-- Rust stable (`cargo`)
-- Flutter 3.47+ with desktop enabled (`flutter config --enable-windows-desktop`)
-- `flutter_rust_bridge_codegen` 2.13 (`cargo install flutter_rust_bridge_codegen`) — only needed when changing Rust APIs
+## 目录
 
-On this Windows machine Flutter is at `D:\Tools\flutter`.
+- Flutter 应用在仓库根目录
+- FRB crate：`rust/`
+- 共享逻辑：`crates/core`
+- CLI：`crates/cli`（二进制名 `devkit`）
 
-## Run locally
+## 依赖
 
-### CLI
+- Rust stable（`cargo`）
+- Flutter 3.47+，并已启用桌面
+- 改 Rust API 时需要 `flutter_rust_bridge_codegen` 2.13
+
+本机 Flutter 在 `D:\Tools\flutter`。
+
+## 本地运行
+
+```powershell
+$env:PATH = "D:\Tools\flutter\bin;$env:PATH"
+flutter_rust_bridge_codegen generate
+cargo test -p devkit-core
+flutter analyze
+flutter test
+flutter run -d windows
+```
+
+Windows 没有 Developer Mode 时，先运行：
+
+```powershell
+.\scripts\windows-plugin-junctions.ps1
+```
+
+再 `flutter pub get` / `flutter run` / `flutter build windows`。
+
+### CLI（age）
 
 ```bash
 cargo run -p devkit-cli -- encrypt --input secret.bin --output secret.bin.age
 cargo run -p devkit-cli -- decrypt --input secret.bin.age --output secret.bin
 ```
 
-Omit `--passphrase` to be prompted. Passing `--passphrase` is for scripts; it shows up in process lists.
+省略 `--passphrase` 会交互提示。脚本里传入口令会出现在进程列表中。
 
-```bash
-cargo test --workspace
-```
+## 约定
 
-### Desktop
-
-Windows desktop builds need **Developer Mode** so Flutter can create plugin
-symlinks (`start ms-settings:developers`). Without it, `flutter run` /
-`flutter build windows` fail with error 1314. After enabling it:
-
-```bash
-flutter pub get
-flutter run -d windows
-```
-
-If Developer Mode is off, `.\scripts\windows-plugin-junctions.ps1` can create
-directory junctions for `rust_lib_devkit` after `flutter pub get`. GitHub
-Actions Windows runners can create symlinks, so CI packs the desktop zip.
-
-If you change `rust/src/api/`, regenerate bindings:
-
-```bash
-flutter_rust_bridge_codegen generate
-```
-
-Type an input path, output path, and passphrase, then **加密** or **解密**.
-
-## Pack
-
-Local pack (Windows):
-
-```powershell
-.\scripts\pack.ps1
-```
-
-Writes:
-
-- `dist/devkit.exe` — CLI
-- `dist/devkit-desktop/` — Flutter Windows release folder (if `flutter` is on PATH)
-
-Unix CLI (and Flutter if present):
-
-```bash
-./scripts/pack.sh
-```
-
-### GitHub Actions
-
-- `CI` runs `cargo test --workspace` (Ubuntu + Windows) and `flutter analyze` / `flutter test`.
-- `Release` builds CLI binaries for Windows/Linux/macOS and a Windows desktop zip.
-- Push a tag `v0.1.0` to publish those artifacts on the GitHub Release.
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
+- 注释、文档、界面文案用中文
+- 不要提交密钥、HAR cookie、`.dart_tool/`、`build/`、`target/`
+- 用户未要求时不要 `git commit` 或 `git push`

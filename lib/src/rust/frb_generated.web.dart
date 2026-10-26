@@ -7,6 +7,9 @@
 // ignore_for_file: argument_type_not_assignable
 
 import 'api/crypto.dart';
+import 'api/crypto_tools.dart';
+import 'api/har.dart';
+import 'api/json.dart';
 import 'api/simple.dart';
 
 import 'dart:async';
@@ -28,7 +31,94 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String dco_decode_String(dynamic raw);
 
   @protected
+  BinaryEncoding dco_decode_binary_encoding(dynamic raw);
+
+  @protected
+  bool dco_decode_bool(dynamic raw);
+
+  @protected
+  double dco_decode_box_autoadd_f_64(dynamic raw);
+
+  @protected
+  HarFilter dco_decode_box_autoadd_har_filter(dynamic raw);
+
+  @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  double dco_decode_f_64(dynamic raw);
+
+  @protected
+  HarEntryDetail dco_decode_har_entry_detail(dynamic raw);
+
+  @protected
+  HarEntrySummary dco_decode_har_entry_summary(dynamic raw);
+
+  @protected
+  HarExportFormat dco_decode_har_export_format(dynamic raw);
+
+  @protected
+  HarFilter dco_decode_har_filter(dynamic raw);
+
+  @protected
+  HarHeader dco_decode_har_header(dynamic raw);
+
+  @protected
+  HashAlg dco_decode_hash_alg(dynamic raw);
+
+  @protected
+  int dco_decode_i_32(dynamic raw);
+
+  @protected
+  PlatformInt64 dco_decode_i_64(dynamic raw);
+
+  @protected
+  JsonDiffKind dco_decode_json_diff_kind(dynamic raw);
+
+  @protected
+  JsonDiffOp dco_decode_json_diff_op(dynamic raw);
+
+  @protected
+  List<String> dco_decode_list_String(dynamic raw);
+
+  @protected
+  List<HarEntrySummary> dco_decode_list_har_entry_summary(dynamic raw);
+
+  @protected
+  List<HarHeader> dco_decode_list_har_header(dynamic raw);
+
+  @protected
+  List<JsonDiffOp> dco_decode_list_json_diff_op(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  String? dco_decode_opt_String(dynamic raw);
+
+  @protected
+  double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
+
+  @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  RsaKeyPair dco_decode_rsa_key_pair(dynamic raw);
+
+  @protected
+  RsaPadding dco_decode_rsa_padding(dynamic raw);
+
+  @protected
+  RsaSignPadding dco_decode_rsa_sign_padding(dynamic raw);
+
+  @protected
+  Sm2KeyPair dco_decode_sm_2_key_pair(dynamic raw);
+
+  @protected
+  Sm4Mode dco_decode_sm_4_mode(dynamic raw);
+
+  @protected
+  int dco_decode_u_32(dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -40,7 +130,96 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
+  BinaryEncoding sse_decode_binary_encoding(SseDeserializer deserializer);
+
+  @protected
+  bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
+  double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
+
+  @protected
+  HarFilter sse_decode_box_autoadd_har_filter(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  double sse_decode_f_64(SseDeserializer deserializer);
+
+  @protected
+  HarEntryDetail sse_decode_har_entry_detail(SseDeserializer deserializer);
+
+  @protected
+  HarEntrySummary sse_decode_har_entry_summary(SseDeserializer deserializer);
+
+  @protected
+  HarExportFormat sse_decode_har_export_format(SseDeserializer deserializer);
+
+  @protected
+  HarFilter sse_decode_har_filter(SseDeserializer deserializer);
+
+  @protected
+  HarHeader sse_decode_har_header(SseDeserializer deserializer);
+
+  @protected
+  HashAlg sse_decode_hash_alg(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
+
+  @protected
+  JsonDiffKind sse_decode_json_diff_kind(SseDeserializer deserializer);
+
+  @protected
+  JsonDiffOp sse_decode_json_diff_op(SseDeserializer deserializer);
+
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+  @protected
+  List<HarEntrySummary> sse_decode_list_har_entry_summary(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<HarHeader> sse_decode_list_har_header(SseDeserializer deserializer);
+
+  @protected
+  List<JsonDiffOp> sse_decode_list_json_diff_op(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer);
+
+  @protected
+  double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
+
+  @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  RsaKeyPair sse_decode_rsa_key_pair(SseDeserializer deserializer);
+
+  @protected
+  RsaPadding sse_decode_rsa_padding(SseDeserializer deserializer);
+
+  @protected
+  RsaSignPadding sse_decode_rsa_sign_padding(SseDeserializer deserializer);
+
+  @protected
+  Sm2KeyPair sse_decode_sm_2_key_pair(SseDeserializer deserializer);
+
+  @protected
+  Sm4Mode sse_decode_sm_4_mode(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -49,13 +228,91 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_decode_unit(SseDeserializer deserializer);
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
-
-  @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
-
-  @protected
   void sse_encode_String(String self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_binary_encoding(
+    BinaryEncoding self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_har_filter(
+    HarFilter self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_f_64(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_har_entry_detail(
+    HarEntryDetail self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_har_entry_summary(
+    HarEntrySummary self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_har_export_format(
+    HarExportFormat self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_har_filter(HarFilter self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_har_header(HarHeader self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_hash_alg(HashAlg self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_json_diff_kind(JsonDiffKind self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_json_diff_op(JsonDiffOp self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_har_entry_summary(
+    List<HarEntrySummary> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_har_header(
+    List<HarHeader> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_json_diff_op(
+    List<JsonDiffOp> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_u_8_strict(
@@ -64,16 +321,40 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_rsa_key_pair(RsaKeyPair self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_rsa_padding(RsaPadding self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_rsa_sign_padding(
+    RsaSignPadding self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_sm_2_key_pair(Sm2KeyPair self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_sm_4_mode(Sm4Mode self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer);
+
+  @protected
   void sse_encode_u_8(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_unit(void self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
 }
 
 // Section: wire_class
