@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = ["crates/core", "crates/cli"]
+exclude = ["rust", "rust_builder"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+publish = false
+
+# RSA keygen is otherwise painfully slow in debug tests.
+[profile.dev.package.num-bigint-dig]
+opt-level = 3
+
