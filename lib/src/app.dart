@@ -8,6 +8,7 @@ import 'package:devkit/src/tools/json/diff_page.dart';
 import 'package:devkit/src/tools/json/json_page.dart';
 import 'package:devkit/src/update/github_releases.dart';
 import 'package:devkit/src/widgets/devkit_logo.dart';
+import 'package:devkit/src/widgets/keep_alive_pager.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -169,7 +170,7 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
           ),
           const VerticalDivider(width: 1),
           Expanded(
-            child: IndexedStack(
+            child: KeepAlivePager(
               index: _tool.index,
               children: _pages,
             ),
