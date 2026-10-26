@@ -45,7 +45,9 @@ jobs:
         with:
           node-version: "22"
       - run: uv sync --project helpers/crypto-python
-      - run: npm --prefix helpers/crypto-node install --omit=dev
+      - name: Install crypto-js
+        working-directory: helpers/crypto-node
+        run: npm install --omit=dev
       - run: pwsh -File scripts/test-helpers.ps1
 
   flutter:
