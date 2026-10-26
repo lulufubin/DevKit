@@ -12,5 +12,6 @@ void main() {
     expect(find.text('JSON 格式化'), findsWidgets);
     expect(find.text('加解密'), findsOneWidget);
     expect(find.text('HAR'), findsOneWidget);
+    expect(find.text('关于'), findsOneWidget);
   });
 }

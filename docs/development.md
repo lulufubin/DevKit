@@ -1,0 +1,53 @@
+# 开发说明
+
+远程：`https://github.com/lulufubin/DevKit.git`，默认分支 `main`。
+
+## 目录
+
+- Flutter 应用在仓库根目录
+- FRB crate：`rust/`
+- 共享逻辑：`crates/core`
+- CLI：`crates/cli`（二进制名 `devkit`）
+- Windows 安装脚本：`installer/devkit.iss`
+
+## 依赖
+
+- Rust stable（`cargo`）
+- Flutter 3.47+，并已启用桌面
+- 改 Rust API 时需要 `flutter_rust_bridge_codegen` 2.13
+
+本机 Flutter 在 `D:\Tools\flutter`。
+
+`flutter build windows` / `flutter run -d windows` 需要 Visual Studio 的「使用 C++ 的桌面开发」工作负载（MSVC、CMake、Windows 10 SDK）。
+
+## 常用命令
+
+```powershell
+$env:PATH = "D:\Tools\flutter\bin;$env:PATH"
+flutter_rust_bridge_codegen generate
+cargo test -p devkit-core
+flutter analyze
+flutter test
+flutter run -d windows
+```
+
+GitHub Actions 的 `CI` 工作流会在 PR 和 `main` 上跑同一套测试，通过后才会自动合并并打包。
+
+本机没有 Developer Mode 时，先运行 `scripts/windows-plugin-junctions.ps1` 再 `flutter pub get` / `flutter run`。
+
+改完 `rust/src/api/` 必须重新 generate。跨 crate 类型要在 api 模块里重新定义，不要 `pub use` 到 FRB。
+
+## CLI（age）
+
+```bash
+cargo run -p devkit-cli -- encrypt --input secret.bin --output secret.bin.age
+cargo run -p devkit-cli -- decrypt --input secret.bin.age --output secret.bin
+```
+
+省略 `--passphrase` 会交互提示。脚本里传入口令会出现在进程列表中。
+
+## 约定
+
+- 注释、文档、界面文案用中文
+- 不要提交密钥、HAR cookie、`.dart_tool/`、`build/`、`target/`
+- 用户未要求时不要 `git commit` 或 `git push`

@@ -1,9 +1,14 @@
+import 'dart:io';
+
+import 'package:devkit/src/tools/about/about_page.dart';
 import 'package:devkit/src/tools/crypto/crypto_page.dart';
 import 'package:devkit/src/tools/har/har_page.dart';
 import 'package:devkit/src/tools/json/diff_page.dart';
 import 'package:devkit/src/tools/json/format_page.dart';
 import 'package:devkit/src/tools/json/minify_page.dart';
+import 'package:devkit/src/update/github_releases.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class DevKitApp extends StatelessWidget {
   const DevKitApp({super.key});
@@ -22,10 +27,12 @@ class DevKitApp extends StatelessWidget {
   }
 }
 
-enum ToolKind { jsonFormat, jsonMinify, jsonDiff, crypto, har }
+enum ToolKind { jsonFormat, jsonMinify, jsonDiff, crypto, har, about }
 
 class WorkbenchShell extends StatefulWidget {
-  const WorkbenchShell({super.key});
+  const WorkbenchShell({super.key, this.releases});
+
+  final GithubReleases? releases;
 
   @override
   State<WorkbenchShell> createState() => _WorkbenchShellState();
@@ -33,6 +40,38 @@ class WorkbenchShell extends StatefulWidget {
 
 class _WorkbenchShellState extends State<WorkbenchShell> {
   ToolKind _tool = ToolKind.jsonFormat;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _silentUpdateCheck();
+    });
+  }
+
+  Future<void> _silentUpdateCheck() async {
+    if (Platform.environment['FLUTTER_TEST'] == 'true') {
+      return;
+    }
+    final owned = widget.releases == null;
+    final releases = widget.releases ?? GithubReleases();
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final latest = await releases.fetchLatest(currentVersion: info.version);
+      if (!mounted || latest == null) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('发现新版本 ${latest.version}，可在「关于」中更新')),
+      );
+    } catch (_) {
+      // 启动检查失败时不打扰用户。
+    } finally {
+      if (owned) {
+        releases.close();
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +110,11 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
                 selectedIcon: Icon(Icons.http),
                 label: Text('HAR'),
               ),
+              NavigationRailDestination(
+                icon: Icon(Icons.info_outline),
+                selectedIcon: Icon(Icons.info),
+                label: Text('关于'),
+              ),
             ],
           ),
           const VerticalDivider(width: 1),
@@ -92,6 +136,8 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
         return const CryptoPage();
       case ToolKind.har:
         return const HarPage();
+      case ToolKind.about:
+        return AboutPage(releases: widget.releases);
     }
   }
 }
