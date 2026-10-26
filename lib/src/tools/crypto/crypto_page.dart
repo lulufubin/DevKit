@@ -1,5 +1,6 @@
 import 'package:devkit/src/rust/api/crypto_tools.dart';
 import 'package:devkit/src/widgets/io_pane.dart';
+import 'package:devkit/src/widgets/keep_alive_pager.dart';
 import 'package:devkit/src/widgets/tool_scaffold.dart';
 import 'package:flutter/material.dart';
 
@@ -51,7 +52,7 @@ class _CryptoPageState extends State<CryptoPage> with SingleTickerProviderStateM
           ),
           const SizedBox(height: 8),
           Expanded(
-            child: IndexedStack(
+            child: KeepAlivePager(
               index: _tabs.index,
               children: const [_CodecTab(), _HashTab(), _AesTab(), _HmacTab(), _RsaTab(), _SmTab()],
             ),
