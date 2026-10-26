@@ -1,4 +1,5 @@
 import 'package:devkit/src/rust/api/crypto_tools.dart';
+import 'package:devkit/src/widgets/io_pane.dart';
 import 'package:devkit/src/widgets/tool_scaffold.dart';
 import 'package:flutter/material.dart';
 
@@ -35,7 +36,7 @@ class _CryptoPageState extends State<CryptoPage> with SingleTickerProviderStateM
               Tab(text: '国密'),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Expanded(
             child: TabBarView(
               controller: _tabs,
@@ -83,18 +84,25 @@ class _CodecTabState extends State<_CodecTab> with ToolFeedback {
 
   @override
   Widget build(BuildContext context) {
-    return _Form(children: [
-      SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('URL 编解码'), value: urlMode, onChanged: (v) => setState(() => urlMode = v)),
-      if (!urlMode)
-        _Drop<BinaryEncoding>(label: '编码', value: encoding, values: const [BinaryEncoding.base64, BinaryEncoding.hex], labelOf: _enc, onChanged: (v) => setState(() => encoding = v)),
-      _Area(label: '输入', controller: input),
-      _Area(label: '输出', controller: output),
-      Wrap(spacing: 8, children: [
+    return _CryptoIo(
+      header: [
+        _Switch(label: 'URL 编解码', value: urlMode, onChanged: (v) => setState(() => urlMode = v)),
+        if (!urlMode)
+          _Drop<BinaryEncoding>(
+            label: '编码',
+            value: encoding,
+            values: const [BinaryEncoding.base64, BinaryEncoding.hex],
+            labelOf: _enc,
+            onChanged: (v) => setState(() => encoding = v),
+          ),
+      ],
+      input: input,
+      output: output,
+      actions: [
         FilledButton(onPressed: () => _run(encode: true), child: const Text('编码')),
         OutlinedButton(onPressed: () => _run(encode: false), child: const Text('解码')),
-        TextButton(onPressed: () => copyText(context, output.text), child: const Text('复制输出')),
-      ]),
-    ]);
+      ],
+    );
   }
 }
 
@@ -119,22 +127,27 @@ class _HashTabState extends State<_HashTab> with ToolFeedback {
 
   @override
   Widget build(BuildContext context) {
-    return _Form(children: [
-      _Drop(label: '算法', value: alg, values: HashAlg.values, labelOf: _hash, onChanged: (v) => setState(() => alg = v)),
-      _Drop(label: '输入编码', value: encoding, values: BinaryEncoding.values, labelOf: _enc, onChanged: (v) => setState(() => encoding = v)),
-      _Area(label: '输入', controller: input),
-      _Area(label: '哈希（Hex）', controller: output),
-      FilledButton(
-        onPressed: () async {
-          try {
-            output.text = await hashText(input: input.text, encoding: encoding, alg: alg);
-          } catch (error) {
-            reportError(error);
-          }
-        },
-        child: const Text('计算'),
-      ),
-    ]);
+    return _CryptoIo(
+      header: [
+        _Drop(label: '算法', value: alg, values: HashAlg.values, labelOf: _hash, onChanged: (v) => setState(() => alg = v)),
+        _Drop(label: '输入编码', value: encoding, values: BinaryEncoding.values, labelOf: _enc, onChanged: (v) => setState(() => encoding = v)),
+      ],
+      input: input,
+      output: output,
+      outputLabel: '哈希（Hex）',
+      actions: [
+        FilledButton(
+          onPressed: () async {
+            try {
+              output.text = await hashText(input: input.text, encoding: encoding, alg: alg);
+            } catch (error) {
+              reportError(error);
+            }
+          },
+          child: const Text('计算'),
+        ),
+      ],
+    );
   }
 }
 
@@ -172,19 +185,28 @@ class _AesTabState extends State<_AesTab> with ToolFeedback {
 
   @override
   Widget build(BuildContext context) {
-    return _Form(children: [
-      const Text('AES-256-GCM。密钥须 32 字节；密文前 12 字节为随机 nonce。'),
-      _Area(label: '明文 / 密文', controller: input, minLines: 4),
-      TextField(controller: key, decoration: const InputDecoration(labelText: '密钥', border: OutlineInputBorder())),
-      _Drop(label: '输入编码', value: inputEnc, values: BinaryEncoding.values, labelOf: _enc, onChanged: (v) => setState(() => inputEnc = v)),
-      _Drop(label: '密钥编码', value: keyEnc, values: BinaryEncoding.values, labelOf: _enc, onChanged: (v) => setState(() => keyEnc = v)),
-      _Drop(label: '输出编码', value: outputEnc, values: const [BinaryEncoding.hex, BinaryEncoding.base64, BinaryEncoding.utf8], labelOf: _enc, onChanged: (v) => setState(() => outputEnc = v)),
-      _Area(label: '输出', controller: output, minLines: 4),
-      Wrap(spacing: 8, children: [
+    return _CryptoIo(
+      header: [
+        const Text('AES-256-GCM，密钥 32 字节，密文前 12 字节为 nonce'),
+        _Line(controller: key, label: '密钥', width: 280),
+        _Drop(label: '输入编码', value: inputEnc, values: BinaryEncoding.values, labelOf: _enc, onChanged: (v) => setState(() => inputEnc = v)),
+        _Drop(label: '密钥编码', value: keyEnc, values: BinaryEncoding.values, labelOf: _enc, onChanged: (v) => setState(() => keyEnc = v)),
+        _Drop(
+          label: '输出编码',
+          value: outputEnc,
+          values: const [BinaryEncoding.hex, BinaryEncoding.base64, BinaryEncoding.utf8],
+          labelOf: _enc,
+          onChanged: (v) => setState(() => outputEnc = v),
+        ),
+      ],
+      input: input,
+      output: output,
+      inputLabel: '明文 / 密文',
+      actions: [
         FilledButton(onPressed: () => _run(encrypt: true), child: const Text('加密')),
         OutlinedButton(onPressed: () => _run(encrypt: false), child: const Text('解密')),
-      ]),
-    ]);
+      ],
+    );
   }
 }
 
@@ -209,21 +231,27 @@ class _HmacTabState extends State<_HmacTab> with ToolFeedback {
 
   @override
   Widget build(BuildContext context) {
-    return _Form(children: [
-      TextField(controller: key, decoration: const InputDecoration(labelText: '密钥', border: OutlineInputBorder())),
-      _Area(label: '消息', controller: message, minLines: 4),
-      _Area(label: 'HMAC-SHA256（Hex）', controller: output, minLines: 3),
-      FilledButton(
-        onPressed: () async {
-          try {
-            output.text = await hmacSha256(key: key.text, keyEncoding: BinaryEncoding.utf8, message: message.text, messageEncoding: BinaryEncoding.utf8);
-          } catch (error) {
-            reportError(error);
-          }
-        },
-        child: const Text('计算'),
-      ),
-    ]);
+    return _CryptoIo(
+      header: [
+        _Line(controller: key, label: '密钥', width: 320),
+      ],
+      input: message,
+      output: output,
+      inputLabel: '消息',
+      outputLabel: 'HMAC-SHA256（Hex）',
+      actions: [
+        FilledButton(
+          onPressed: () async {
+            try {
+              output.text = await hmacSha256(key: key.text, keyEncoding: BinaryEncoding.utf8, message: message.text, messageEncoding: BinaryEncoding.utf8);
+            } catch (error) {
+              reportError(error);
+            }
+          },
+          child: const Text('计算'),
+        ),
+      ],
+    );
   }
 }
 
@@ -252,26 +280,36 @@ class _RsaTabState extends State<_RsaTab> with ToolFeedback {
 
   @override
   Widget build(BuildContext context) {
-    return _Form(children: [
-      _Area(label: '公钥 PEM', controller: publicPem, minLines: 3),
-      _Area(label: '私钥 PEM（仅会话内）', controller: privatePem, minLines: 3),
-      FilledButton.tonal(
-        onPressed: () async {
-          try {
-            final pair = await rsaGenerateKeypair(bits: 2048);
-            publicPem.text = pair.publicPem;
-            privatePem.text = pair.privatePem;
-          } catch (error) {
-            reportError(error);
-          }
-        },
-        child: const Text('生成 2048 位密钥对'),
+    return _CryptoIo(
+      header: [
+        FilledButton.tonal(
+          onPressed: () async {
+            try {
+              final pair = await rsaGenerateKeypair(bits: 2048);
+              publicPem.text = pair.publicPem;
+              privatePem.text = pair.privatePem;
+            } catch (error) {
+              reportError(error);
+            }
+          },
+          child: const Text('生成 2048 位密钥对'),
+        ),
+        _Drop(label: '加密填充', value: padding, values: RsaPadding.values, labelOf: _rsaPad, onChanged: (v) => setState(() => padding = v)),
+        _Drop(label: '签名填充', value: signPadding, values: RsaSignPadding.values, labelOf: _rsaSign, onChanged: (v) => setState(() => signPadding = v)),
+      ],
+      extra: Row(
+        children: [
+          Expanded(child: IoBox(label: '公钥 PEM', controller: publicPem, dense: true)),
+          const SizedBox(width: 12),
+          Expanded(child: IoBox(label: '私钥 PEM（仅会话内）', controller: privatePem, dense: true)),
+        ],
       ),
-      _Drop(label: '加密填充', value: padding, values: RsaPadding.values, labelOf: _rsaPad, onChanged: (v) => setState(() => padding = v)),
-      _Drop(label: '签名填充', value: signPadding, values: RsaSignPadding.values, labelOf: _rsaSign, onChanged: (v) => setState(() => signPadding = v)),
-      _Area(label: '明文 / 密文 / 待签消息', controller: input, minLines: 3),
-      _Area(label: '输出', controller: output, minLines: 3),
-      Wrap(spacing: 8, runSpacing: 8, children: [
+      extraFlex: 2,
+      ioFlex: 5,
+      input: input,
+      output: output,
+      inputLabel: '明文 / 密文 / 待签消息',
+      actions: [
         FilledButton(
           onPressed: () async {
             try {
@@ -313,8 +351,8 @@ class _RsaTabState extends State<_RsaTab> with ToolFeedback {
           },
           child: const Text('验签'),
         ),
-      ]),
-    ]);
+      ],
+    );
   }
 }
 
@@ -422,44 +460,134 @@ class _SmTabState extends State<_SmTab> with ToolFeedback {
 
   @override
   Widget build(BuildContext context) {
-    return _Form(children: [
-      _Area(label: '输入', controller: input, minLines: 3),
-      TextField(controller: key, decoration: const InputDecoration(labelText: 'SM4 密钥 Hex（16 字节）', border: OutlineInputBorder())),
-      _Drop(label: 'SM4 模式', value: mode, values: Sm4Mode.values, labelOf: (v) => v == Sm4Mode.cbc ? 'CBC（IV 自动前置）' : 'ECB', onChanged: (v) => setState(() => mode = v)),
-      _Area(label: 'SM2 公钥 Hex', controller: publicHex, minLines: 2),
-      _Area(label: 'SM2 私钥 Hex（仅会话内）', controller: privateHex, minLines: 2),
-      _Area(label: '输出', controller: output, minLines: 3),
-      Wrap(spacing: 8, runSpacing: 8, children: [
+    return _CryptoIo(
+      header: [
+        _Line(controller: key, label: 'SM4 密钥 Hex（16 字节）', width: 280),
+        _Drop(label: 'SM4 模式', value: mode, values: Sm4Mode.values, labelOf: (v) => v == Sm4Mode.cbc ? 'CBC（IV 自动前置）' : 'ECB', onChanged: (v) => setState(() => mode = v)),
+        FilledButton.tonal(onPressed: _sm2Generate, child: const Text('生成 SM2')),
+      ],
+      extra: Row(
+        children: [
+          Expanded(child: IoBox(label: 'SM2 公钥 Hex', controller: publicHex, dense: true)),
+          const SizedBox(width: 12),
+          Expanded(child: IoBox(label: 'SM2 私钥 Hex（仅会话内）', controller: privateHex, dense: true)),
+        ],
+      ),
+      extraFlex: 2,
+      ioFlex: 5,
+      input: input,
+      output: output,
+      actions: [
         FilledButton(onPressed: _sm3, child: const Text('SM3')),
         FilledButton.tonal(onPressed: _sm4Encrypt, child: const Text('SM4 加密')),
         OutlinedButton(onPressed: _sm4Decrypt, child: const Text('SM4 解密')),
-        FilledButton.tonal(onPressed: _sm2Generate, child: const Text('生成 SM2')),
         FilledButton(onPressed: _sm2Encrypt, child: const Text('SM2 加密')),
         OutlinedButton(onPressed: _sm2Decrypt, child: const Text('SM2 解密')),
         FilledButton.tonal(onPressed: _sm2Sign, child: const Text('SM2 签名')),
         OutlinedButton(onPressed: _sm2Verify, child: const Text('SM2 验签')),
-      ]),
-    ]);
+      ],
+    );
   }
 }
 
-class _Form extends StatelessWidget {
-  const _Form({required this.children});
-  final List<Widget> children;
+/// 选项条 + 可选密钥区 + 拉满剩余空间的输入/输出。
+class _CryptoIo extends StatelessWidget {
+  const _CryptoIo({
+    required this.input,
+    required this.output,
+    required this.actions,
+    this.header = const [],
+    this.extra,
+    this.extraFlex = 2,
+    this.ioFlex = 5,
+    this.inputLabel = '输入',
+    this.outputLabel = '输出',
+  });
+
+  final List<Widget> header;
+  final Widget? extra;
+  final int extraFlex;
+  final int ioFlex;
+  final TextEditingController input;
+  final TextEditingController output;
+  final String inputLabel;
+  final String outputLabel;
+  final List<Widget> actions;
+
   @override
   Widget build(BuildContext context) {
-    return ListView(padding: const EdgeInsets.only(top: 8, right: 8), children: [for (final c in children) ...[c, const SizedBox(height: 12)]]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (header.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: header,
+            ),
+          ),
+        if (extra != null) ...[
+          Expanded(flex: extraFlex, child: extra!),
+          const SizedBox(height: 8),
+        ],
+        Expanded(
+          flex: ioFlex,
+          child: IoSplit(
+            input: input,
+            output: output,
+            inputLabel: inputLabel,
+            outputLabel: outputLabel,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(spacing: 8, runSpacing: 8, children: actions),
+      ],
+    );
   }
 }
 
-class _Area extends StatelessWidget {
-  const _Area({required this.label, required this.controller, this.minLines = 5});
-  final String label;
+class _Line extends StatelessWidget {
+  const _Line({required this.controller, required this.label, this.width = 240});
+
   final TextEditingController controller;
-  final int minLines;
+  final String label;
+  final double width;
+
   @override
   Widget build(BuildContext context) {
-    return TextField(controller: controller, minLines: minLines, maxLines: minLines + 6, decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()));
+    return SizedBox(
+      width: width,
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          isDense: true,
+        ),
+      ),
+    );
+  }
+}
+
+class _Switch extends StatelessWidget {
+  const _Switch({required this.label, required this.value, required this.onChanged});
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label),
+        Switch(value: value, onChanged: onChanged),
+      ],
+    );
   }
 }
 
@@ -470,16 +598,28 @@ class _Drop<T> extends StatelessWidget {
   final List<T> values;
   final String Function(T) labelOf;
   final ValueChanged<T> onChanged;
+
   @override
   Widget build(BuildContext context) {
-    return InputDecorator(
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<T>(
-          value: value,
-          isExpanded: true,
-          items: [for (final item in values) DropdownMenuItem(value: item, child: Text(labelOf(item)))],
-          onChanged: (next) { if (next != null) onChanged(next); },
+    return SizedBox(
+      width: 220,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<T>(
+            value: value,
+            isDense: true,
+            isExpanded: true,
+            items: [for (final item in values) DropdownMenuItem(value: item, child: Text(labelOf(item)))],
+            onChanged: (next) {
+              if (next != null) onChanged(next);
+            },
+          ),
         ),
       ),
     );
