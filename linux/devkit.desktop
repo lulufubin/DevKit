@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=DevKit
+Comment=JSON、加解密、HAR 工作台
+Exec=devkit
+Icon=devkit
+Terminal=false
+Categories=Development;Utility;
+StartupWMClass=com.lulufubin.devkit
