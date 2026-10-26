@@ -461,6 +461,18 @@ fn call_helper(spec: &HelperSpec, req: &Value) -> Result<Value, String> {
     }
 }
 
+/// Windows 上 node.exe / Nuitka 默认是控制台程序，不设此标志会弹出黑窗。
+const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+
+fn hide_helper_console(cmd: &mut Command) {
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+    let _ = cmd;
+}
+
 fn spawn_helper(spec: &HelperSpec) -> Result<HelperProc, String> {
     let mut cmd = Command::new(&spec.program);
     cmd.args(&spec.args)
@@ -468,6 +480,7 @@ fn spawn_helper(spec: &HelperSpec) -> Result<HelperProc, String> {
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
+    hide_helper_console(&mut cmd);
     let mut child = cmd.spawn().map_err(|err| format!("无法启动助手：{err}"))?;
     let stdin = child.stdin.take().ok_or_else(|| "助手没有 stdin".to_string())?;
     let stdout = child.stdout.take().ok_or_else(|| "助手没有 stdout".to_string())?;
@@ -530,5 +543,21 @@ mod tests {
         assert_eq!(result.python.status, CompareStatus::Unsupported);
         assert_eq!(result.node.status, CompareStatus::Unsupported);
         assert!(!result.rust.output.is_empty());
+    }
+
+    #[test]
+    fn helper_console_flag_hides_window_on_windows() {
+        assert_eq!(CREATE_NO_WINDOW, 0x0800_0000);
+        #[cfg(windows)]
+        {
+            let mut cmd = Command::new("cmd");
+            cmd.args(["/C", "echo ok"])
+                .stdin(Stdio::null())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped());
+            hide_helper_console(&mut cmd);
+            let output = cmd.output().unwrap();
+            assert!(String::from_utf8_lossy(&output.stdout).contains("ok"));
+        }
     }
 }

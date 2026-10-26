@@ -20,7 +20,7 @@ if (Test-Path $work) { Remove-Item -Recurse -Force $work }
 if (Test-Path $pyOut) { Remove-Item -Recurse -Force $pyOut }
 
 Write-Host "Nuitka standalone via uv..."
-uv run --project $pyProject --group pack python -m nuitka --standalone --assume-yes-for-downloads --output-filename=devkit-crypto-python.exe --output-dir=$work (Join-Path $pyProject "main.py")
+uv run --project $pyProject --group pack python -m nuitka --standalone --windows-console-mode=disable --assume-yes-for-downloads --output-filename=devkit-crypto-python.exe --output-dir=$work (Join-Path $pyProject "main.py")
 if ($LASTEXITCODE -ne 0) { throw "Nuitka failed" }
 $built = Get-ChildItem $work -Directory -Filter "*.dist" | Select-Object -First 1
 if (-not $built) { throw "Nuitka dist folder not found" }
