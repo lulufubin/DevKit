@@ -14,6 +14,7 @@ class _JsonDiffPageState extends State<JsonDiffPage> with ToolFeedback {
   final _left = TextEditingController();
   final _right = TextEditingController();
   List<JsonDiffOp> _ops = const [];
+  JsonMode _mode = JsonMode.lenient;
   bool _busy = false;
 
   @override
@@ -26,7 +27,7 @@ class _JsonDiffPageState extends State<JsonDiffPage> with ToolFeedback {
   Future<void> _run() async {
     setState(() => _busy = true);
     try {
-      final ops = await jsonDiff(left: _left.text, right: _right.text);
+      final ops = await jsonDiff(left: _left.text, right: _right.text, mode: _mode);
       setState(() => _ops = ops);
     } catch (error) {
       reportError(error);
@@ -53,7 +54,22 @@ class _JsonDiffPageState extends State<JsonDiffPage> with ToolFeedback {
           const SizedBox(height: 12),
           Align(
             alignment: Alignment.centerLeft,
-            child: FilledButton(onPressed: _busy ? null : _run, child: Text(_busy ? '对比中…' : '对比')),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                SegmentedButton<JsonMode>(
+                  segments: const [
+                    ButtonSegment(value: JsonMode.lenient, label: Text('宽容')),
+                    ButtonSegment(value: JsonMode.strict, label: Text('严格')),
+                  ],
+                  selected: {_mode},
+                  onSelectionChanged: _busy ? null : (next) => setState(() => _mode = next.single),
+                ),
+                FilledButton(onPressed: _busy ? null : _run, child: Text(_busy ? '对比中…' : '对比')),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Expanded(

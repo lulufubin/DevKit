@@ -164,11 +164,18 @@ abstract class RustLibApi extends BaseApi {
   Future<List<JsonDiffOp>> crateApiJsonJsonDiff({
     required String left,
     required String right,
+    required JsonMode mode,
   });
 
-  Future<String> crateApiJsonJsonFormat({required String text});
+  Future<String> crateApiJsonJsonFormat({
+    required String text,
+    required JsonMode mode,
+  });
 
-  Future<String> crateApiJsonJsonMinify({required String text});
+  Future<String> crateApiJsonJsonMinify({
+    required String text,
+    required JsonMode mode,
+  });
 
   String crateApiSimplePing();
 
@@ -830,6 +837,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   Future<List<JsonDiffOp>> crateApiJsonJsonDiff({
     required String left,
     required String right,
+    required JsonMode mode,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -837,6 +845,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(left, serializer);
           sse_encode_String(right, serializer);
+          sse_encode_json_mode(mode, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -849,22 +858,28 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_String,
         ),
         constMeta: kCrateApiJsonJsonDiffConstMeta,
-        argValues: [left, right],
+        argValues: [left, right, mode],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiJsonJsonDiffConstMeta =>
-      const TaskConstMeta(debugName: "json_diff", argNames: ["left", "right"]);
+  TaskConstMeta get kCrateApiJsonJsonDiffConstMeta => const TaskConstMeta(
+    debugName: "json_diff",
+    argNames: ["left", "right", "mode"],
+  );
 
   @override
-  Future<String> crateApiJsonJsonFormat({required String text}) {
+  Future<String> crateApiJsonJsonFormat({
+    required String text,
+    required JsonMode mode,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(text, serializer);
+          sse_encode_json_mode(mode, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -877,22 +892,26 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_String,
         ),
         constMeta: kCrateApiJsonJsonFormatConstMeta,
-        argValues: [text],
+        argValues: [text, mode],
         apiImpl: this,
       ),
     );
   }
 
   TaskConstMeta get kCrateApiJsonJsonFormatConstMeta =>
-      const TaskConstMeta(debugName: "json_format", argNames: ["text"]);
+      const TaskConstMeta(debugName: "json_format", argNames: ["text", "mode"]);
 
   @override
-  Future<String> crateApiJsonJsonMinify({required String text}) {
+  Future<String> crateApiJsonJsonMinify({
+    required String text,
+    required JsonMode mode,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(text, serializer);
+          sse_encode_json_mode(mode, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -905,14 +924,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_String,
         ),
         constMeta: kCrateApiJsonJsonMinifyConstMeta,
-        argValues: [text],
+        argValues: [text, mode],
         apiImpl: this,
       ),
     );
   }
 
   TaskConstMeta get kCrateApiJsonJsonMinifyConstMeta =>
-      const TaskConstMeta(debugName: "json_minify", argNames: ["text"]);
+      const TaskConstMeta(debugName: "json_minify", argNames: ["text", "mode"]);
 
   @override
   String crateApiSimplePing() {
@@ -1741,6 +1760,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  JsonMode dco_decode_json_mode(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return JsonMode.values[raw as int];
+  }
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_String).toList();
@@ -2007,6 +2032,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       left: var_left,
       right: var_right,
     );
+  }
+
+  @protected
+  JsonMode sse_decode_json_mode(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return JsonMode.values[inner];
   }
 
   @protected
@@ -2289,6 +2321,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_json_diff_kind(self.kind, serializer);
     sse_encode_opt_String(self.left, serializer);
     sse_encode_opt_String(self.right, serializer);
+  }
+
+  @protected
+  void sse_encode_json_mode(JsonMode self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected
