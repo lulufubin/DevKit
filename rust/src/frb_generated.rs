@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1240373663;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1169273398;
 
 // Section: executor
 
@@ -205,6 +205,188 @@ fn wire__crate__api__crypto_tools__codec_encode_impl(
                 transform_result_sse::<_, String>((move || {
                     let output_ok =
                         crate::api::crypto_tools::codec_encode(api_input, api_encoding)?;
+                    std::result::Result::Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__crypto_tools__compare_aes_decrypt_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "compare_aes_decrypt",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_key = <String>::sse_decode(&mut deserializer);
+            let api_key_encoding =
+                <crate::api::crypto_tools::BinaryEncoding>::sse_decode(&mut deserializer);
+            let api_ciphertext = <String>::sse_decode(&mut deserializer);
+            let api_ciphertext_encoding =
+                <crate::api::crypto_tools::BinaryEncoding>::sse_decode(&mut deserializer);
+            let api_output_encoding =
+                <crate::api::crypto_tools::BinaryEncoding>::sse_decode(&mut deserializer);
+            let api_mode = <crate::api::crypto_tools::AesMode>::sse_decode(&mut deserializer);
+            let api_key_mode =
+                <crate::api::crypto_tools::AesKeyMode>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::api::crypto_tools::compare_aes_decrypt(
+                        api_key,
+                        api_key_encoding,
+                        api_ciphertext,
+                        api_ciphertext_encoding,
+                        api_output_encoding,
+                        api_mode,
+                        api_key_mode,
+                    )?;
+                    std::result::Result::Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__crypto_tools__compare_aes_encrypt_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "compare_aes_encrypt",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_key = <String>::sse_decode(&mut deserializer);
+            let api_key_encoding =
+                <crate::api::crypto_tools::BinaryEncoding>::sse_decode(&mut deserializer);
+            let api_plaintext = <String>::sse_decode(&mut deserializer);
+            let api_plaintext_encoding =
+                <crate::api::crypto_tools::BinaryEncoding>::sse_decode(&mut deserializer);
+            let api_output_encoding =
+                <crate::api::crypto_tools::BinaryEncoding>::sse_decode(&mut deserializer);
+            let api_mode = <crate::api::crypto_tools::AesMode>::sse_decode(&mut deserializer);
+            let api_key_mode =
+                <crate::api::crypto_tools::AesKeyMode>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::api::crypto_tools::compare_aes_encrypt(
+                        api_key,
+                        api_key_encoding,
+                        api_plaintext,
+                        api_plaintext_encoding,
+                        api_output_encoding,
+                        api_mode,
+                        api_key_mode,
+                    )?;
+                    std::result::Result::Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__crypto_tools__compare_hash_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "compare_hash",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_input = <String>::sse_decode(&mut deserializer);
+            let api_encoding =
+                <crate::api::crypto_tools::BinaryEncoding>::sse_decode(&mut deserializer);
+            let api_alg = <crate::api::crypto_tools::HashAlg>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok =
+                        crate::api::crypto_tools::compare_hash(api_input, api_encoding, api_alg)?;
+                    std::result::Result::Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__crypto_tools__compare_hmac_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "compare_hmac",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_key = <String>::sse_decode(&mut deserializer);
+            let api_key_encoding =
+                <crate::api::crypto_tools::BinaryEncoding>::sse_decode(&mut deserializer);
+            let api_message = <String>::sse_decode(&mut deserializer);
+            let api_message_encoding =
+                <crate::api::crypto_tools::BinaryEncoding>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::api::crypto_tools::compare_hmac(
+                        api_key,
+                        api_key_encoding,
+                        api_message,
+                        api_message_encoding,
+                    )?;
                     std::result::Result::Ok(output_ok)
                 })())
             }
@@ -1389,6 +1571,30 @@ impl SseDecode for String {
     }
 }
 
+impl SseDecode for crate::api::crypto_tools::AesKeyMode {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::crypto_tools::AesKeyMode::Raw,
+            1 => crate::api::crypto_tools::AesKeyMode::Passphrase,
+            _ => unreachable!("Invalid variant for AesKeyMode: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::api::crypto_tools::AesMode {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::crypto_tools::AesMode::Gcm,
+            1 => crate::api::crypto_tools::AesMode::Cbc,
+            _ => unreachable!("Invalid variant for AesMode: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::api::crypto_tools::BinaryEncoding {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1406,6 +1612,50 @@ impl SseDecode for bool {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         deserializer.cursor.read_u8().unwrap() != 0
+    }
+}
+
+impl SseDecode for crate::api::crypto_tools::CompareColumn {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_label = <String>::sse_decode(deserializer);
+        let mut var_output = <String>::sse_decode(deserializer);
+        let mut var_status = <crate::api::crypto_tools::CompareStatus>::sse_decode(deserializer);
+        let mut var_message = <String>::sse_decode(deserializer);
+        return crate::api::crypto_tools::CompareColumn {
+            label: var_label,
+            output: var_output,
+            status: var_status,
+            message: var_message,
+        };
+    }
+}
+
+impl SseDecode for crate::api::crypto_tools::CompareResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_rust = <crate::api::crypto_tools::CompareColumn>::sse_decode(deserializer);
+        let mut var_python = <crate::api::crypto_tools::CompareColumn>::sse_decode(deserializer);
+        let mut var_node = <crate::api::crypto_tools::CompareColumn>::sse_decode(deserializer);
+        return crate::api::crypto_tools::CompareResult {
+            rust: var_rust,
+            python: var_python,
+            node: var_node,
+        };
+    }
+}
+
+impl SseDecode for crate::api::crypto_tools::CompareStatus {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::crypto_tools::CompareStatus::Match,
+            1 => crate::api::crypto_tools::CompareStatus::Differ,
+            2 => crate::api::crypto_tools::CompareStatus::Unsupported,
+            3 => crate::api::crypto_tools::CompareStatus::Error,
+            _ => unreachable!("Invalid variant for CompareStatus: {}", inner),
+        };
     }
 }
 
@@ -1768,45 +2018,59 @@ fn pde_ffi_dispatcher_primary_impl(
         ),
         3 => wire__crate__api__crypto_tools__codec_decode_impl(port, ptr, rust_vec_len, data_len),
         4 => wire__crate__api__crypto_tools__codec_encode_impl(port, ptr, rust_vec_len, data_len),
-        5 => wire__crate__api__crypto__decrypt_file_impl(port, ptr, rust_vec_len, data_len),
-        6 => wire__crate__api__crypto__encrypt_file_impl(port, ptr, rust_vec_len, data_len),
-        8 => wire__crate__api__har__har_entry_impl(port, ptr, rust_vec_len, data_len),
-        9 => wire__crate__api__har__har_export_impl(port, ptr, rust_vec_len, data_len),
-        10 => wire__crate__api__har__har_filter_impl(port, ptr, rust_vec_len, data_len),
-        11 => wire__crate__api__har__har_import_path_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__api__har__har_import_text_impl(port, ptr, rust_vec_len, data_len),
-        13 => wire__crate__api__har__har_to_python_impl(port, ptr, rust_vec_len, data_len),
-        14 => wire__crate__api__crypto_tools__hash_text_impl(port, ptr, rust_vec_len, data_len),
-        15 => wire__crate__api__crypto_tools__hmac_sha256_impl(port, ptr, rust_vec_len, data_len),
-        16 => wire__crate__api__simple__init_app_impl(port, ptr, rust_vec_len, data_len),
-        17 => wire__crate__api__json__json_diff_impl(port, ptr, rust_vec_len, data_len),
-        18 => wire__crate__api__json__json_format_impl(port, ptr, rust_vec_len, data_len),
-        19 => wire__crate__api__json__json_minify_impl(port, ptr, rust_vec_len, data_len),
-        21 => wire__crate__api__crypto_tools__rsa_decrypt_impl(port, ptr, rust_vec_len, data_len),
-        22 => wire__crate__api__crypto_tools__rsa_encrypt_impl(port, ptr, rust_vec_len, data_len),
-        23 => wire__crate__api__crypto_tools__rsa_generate_keypair_impl(
+        5 => wire__crate__api__crypto_tools__compare_aes_decrypt_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        24 => wire__crate__api__crypto_tools__rsa_sign_impl(port, ptr, rust_vec_len, data_len),
-        25 => wire__crate__api__crypto_tools__rsa_verify_impl(port, ptr, rust_vec_len, data_len),
-        26 => wire__crate__api__crypto_tools__sm2_decrypt_impl(port, ptr, rust_vec_len, data_len),
-        27 => wire__crate__api__crypto_tools__sm2_encrypt_impl(port, ptr, rust_vec_len, data_len),
-        28 => wire__crate__api__crypto_tools__sm2_generate_keypair_impl(
+        6 => wire__crate__api__crypto_tools__compare_aes_encrypt_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        29 => wire__crate__api__crypto_tools__sm2_sign_impl(port, ptr, rust_vec_len, data_len),
-        30 => wire__crate__api__crypto_tools__sm2_verify_impl(port, ptr, rust_vec_len, data_len),
-        31 => wire__crate__api__crypto_tools__sm3_hash_impl(port, ptr, rust_vec_len, data_len),
-        32 => wire__crate__api__crypto_tools__sm4_decrypt_impl(port, ptr, rust_vec_len, data_len),
-        33 => wire__crate__api__crypto_tools__sm4_encrypt_impl(port, ptr, rust_vec_len, data_len),
-        34 => wire__crate__api__crypto_tools__url_decode_impl(port, ptr, rust_vec_len, data_len),
-        35 => wire__crate__api__crypto_tools__url_encode_impl(port, ptr, rust_vec_len, data_len),
+        7 => wire__crate__api__crypto_tools__compare_hash_impl(port, ptr, rust_vec_len, data_len),
+        8 => wire__crate__api__crypto_tools__compare_hmac_impl(port, ptr, rust_vec_len, data_len),
+        9 => wire__crate__api__crypto__decrypt_file_impl(port, ptr, rust_vec_len, data_len),
+        10 => wire__crate__api__crypto__encrypt_file_impl(port, ptr, rust_vec_len, data_len),
+        12 => wire__crate__api__har__har_entry_impl(port, ptr, rust_vec_len, data_len),
+        13 => wire__crate__api__har__har_export_impl(port, ptr, rust_vec_len, data_len),
+        14 => wire__crate__api__har__har_filter_impl(port, ptr, rust_vec_len, data_len),
+        15 => wire__crate__api__har__har_import_path_impl(port, ptr, rust_vec_len, data_len),
+        16 => wire__crate__api__har__har_import_text_impl(port, ptr, rust_vec_len, data_len),
+        17 => wire__crate__api__har__har_to_python_impl(port, ptr, rust_vec_len, data_len),
+        18 => wire__crate__api__crypto_tools__hash_text_impl(port, ptr, rust_vec_len, data_len),
+        19 => wire__crate__api__crypto_tools__hmac_sha256_impl(port, ptr, rust_vec_len, data_len),
+        20 => wire__crate__api__simple__init_app_impl(port, ptr, rust_vec_len, data_len),
+        21 => wire__crate__api__json__json_diff_impl(port, ptr, rust_vec_len, data_len),
+        22 => wire__crate__api__json__json_format_impl(port, ptr, rust_vec_len, data_len),
+        23 => wire__crate__api__json__json_minify_impl(port, ptr, rust_vec_len, data_len),
+        25 => wire__crate__api__crypto_tools__rsa_decrypt_impl(port, ptr, rust_vec_len, data_len),
+        26 => wire__crate__api__crypto_tools__rsa_encrypt_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__api__crypto_tools__rsa_generate_keypair_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        28 => wire__crate__api__crypto_tools__rsa_sign_impl(port, ptr, rust_vec_len, data_len),
+        29 => wire__crate__api__crypto_tools__rsa_verify_impl(port, ptr, rust_vec_len, data_len),
+        30 => wire__crate__api__crypto_tools__sm2_decrypt_impl(port, ptr, rust_vec_len, data_len),
+        31 => wire__crate__api__crypto_tools__sm2_encrypt_impl(port, ptr, rust_vec_len, data_len),
+        32 => wire__crate__api__crypto_tools__sm2_generate_keypair_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        33 => wire__crate__api__crypto_tools__sm2_sign_impl(port, ptr, rust_vec_len, data_len),
+        34 => wire__crate__api__crypto_tools__sm2_verify_impl(port, ptr, rust_vec_len, data_len),
+        35 => wire__crate__api__crypto_tools__sm3_hash_impl(port, ptr, rust_vec_len, data_len),
+        36 => wire__crate__api__crypto_tools__sm4_decrypt_impl(port, ptr, rust_vec_len, data_len),
+        37 => wire__crate__api__crypto_tools__sm4_encrypt_impl(port, ptr, rust_vec_len, data_len),
+        38 => wire__crate__api__crypto_tools__url_decode_impl(port, ptr, rust_vec_len, data_len),
+        39 => wire__crate__api__crypto_tools__url_encode_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -1819,14 +2083,56 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        7 => wire__crate__api__simple__greet_impl(ptr, rust_vec_len, data_len),
-        20 => wire__crate__api__simple__ping_impl(ptr, rust_vec_len, data_len),
+        11 => wire__crate__api__simple__greet_impl(ptr, rust_vec_len, data_len),
+        24 => wire__crate__api__simple__ping_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
 
 // Section: rust2dart
 
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::crypto_tools::AesKeyMode {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Raw => 0.into_dart(),
+            Self::Passphrase => 1.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::crypto_tools::AesKeyMode
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::crypto_tools::AesKeyMode>
+    for crate::api::crypto_tools::AesKeyMode
+{
+    fn into_into_dart(self) -> crate::api::crypto_tools::AesKeyMode {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::crypto_tools::AesMode {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Gcm => 0.into_dart(),
+            Self::Cbc => 1.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::crypto_tools::AesMode
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::crypto_tools::AesMode>
+    for crate::api::crypto_tools::AesMode
+{
+    fn into_into_dart(self) -> crate::api::crypto_tools::AesMode {
+        self
+    }
+}
 // Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::crypto_tools::BinaryEncoding {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
@@ -1846,6 +2152,74 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::crypto_tools::BinaryEncoding>
     for crate::api::crypto_tools::BinaryEncoding
 {
     fn into_into_dart(self) -> crate::api::crypto_tools::BinaryEncoding {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::crypto_tools::CompareColumn {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.label.into_into_dart().into_dart(),
+            self.output.into_into_dart().into_dart(),
+            self.status.into_into_dart().into_dart(),
+            self.message.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::crypto_tools::CompareColumn
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::crypto_tools::CompareColumn>
+    for crate::api::crypto_tools::CompareColumn
+{
+    fn into_into_dart(self) -> crate::api::crypto_tools::CompareColumn {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::crypto_tools::CompareResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.rust.into_into_dart().into_dart(),
+            self.python.into_into_dart().into_dart(),
+            self.node.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::crypto_tools::CompareResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::crypto_tools::CompareResult>
+    for crate::api::crypto_tools::CompareResult
+{
+    fn into_into_dart(self) -> crate::api::crypto_tools::CompareResult {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::crypto_tools::CompareStatus {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Match => 0.into_dart(),
+            Self::Differ => 1.into_dart(),
+            Self::Unsupported => 2.into_dart(),
+            Self::Error => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::crypto_tools::CompareStatus
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::crypto_tools::CompareStatus>
+    for crate::api::crypto_tools::CompareStatus
+{
+    fn into_into_dart(self) -> crate::api::crypto_tools::CompareStatus {
         self
     }
 }
@@ -2152,6 +2526,38 @@ impl SseEncode for String {
     }
 }
 
+impl SseEncode for crate::api::crypto_tools::AesKeyMode {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::crypto_tools::AesKeyMode::Raw => 0,
+                crate::api::crypto_tools::AesKeyMode::Passphrase => 1,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::crypto_tools::AesMode {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::crypto_tools::AesMode::Gcm => 0,
+                crate::api::crypto_tools::AesMode::Cbc => 1,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::api::crypto_tools::BinaryEncoding {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2173,6 +2579,43 @@ impl SseEncode for bool {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
+impl SseEncode for crate::api::crypto_tools::CompareColumn {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.label, serializer);
+        <String>::sse_encode(self.output, serializer);
+        <crate::api::crypto_tools::CompareStatus>::sse_encode(self.status, serializer);
+        <String>::sse_encode(self.message, serializer);
+    }
+}
+
+impl SseEncode for crate::api::crypto_tools::CompareResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::api::crypto_tools::CompareColumn>::sse_encode(self.rust, serializer);
+        <crate::api::crypto_tools::CompareColumn>::sse_encode(self.python, serializer);
+        <crate::api::crypto_tools::CompareColumn>::sse_encode(self.node, serializer);
+    }
+}
+
+impl SseEncode for crate::api::crypto_tools::CompareStatus {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::crypto_tools::CompareStatus::Match => 0,
+                crate::api::crypto_tools::CompareStatus::Differ => 1,
+                crate::api::crypto_tools::CompareStatus::Unsupported => 2,
+                crate::api::crypto_tools::CompareStatus::Error => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 

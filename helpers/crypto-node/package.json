@@ -1,0 +1,10 @@
+{
+  "name": "devkit-crypto-node",
+  "private": true,
+  "version": "0.1.0",
+  "description": "DevKit crypto-js helper",
+  "main": "index.js",
+  "dependencies": {
+    "crypto-js": "^4.2.0"
+  }
+}

@@ -4,6 +4,7 @@
 //! entire input file into memory.
 
 pub mod crypto;
+pub mod crypto_compare;
 pub mod crypto_tools;
 pub mod har;
 pub mod json;

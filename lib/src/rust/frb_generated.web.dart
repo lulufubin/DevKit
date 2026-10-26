@@ -31,6 +31,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String dco_decode_String(dynamic raw);
 
   @protected
+  AesKeyMode dco_decode_aes_key_mode(dynamic raw);
+
+  @protected
+  AesMode dco_decode_aes_mode(dynamic raw);
+
+  @protected
   BinaryEncoding dco_decode_binary_encoding(dynamic raw);
 
   @protected
@@ -44,6 +50,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  CompareColumn dco_decode_compare_column(dynamic raw);
+
+  @protected
+  CompareResult dco_decode_compare_result(dynamic raw);
+
+  @protected
+  CompareStatus dco_decode_compare_status(dynamic raw);
 
   @protected
   double dco_decode_f_64(dynamic raw);
@@ -133,6 +148,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
+  AesKeyMode sse_decode_aes_key_mode(SseDeserializer deserializer);
+
+  @protected
+  AesMode sse_decode_aes_mode(SseDeserializer deserializer);
+
+  @protected
   BinaryEncoding sse_decode_binary_encoding(SseDeserializer deserializer);
 
   @protected
@@ -146,6 +167,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  CompareColumn sse_decode_compare_column(SseDeserializer deserializer);
+
+  @protected
+  CompareResult sse_decode_compare_result(SseDeserializer deserializer);
+
+  @protected
+  CompareStatus sse_decode_compare_status(SseDeserializer deserializer);
 
   @protected
   double sse_decode_f_64(SseDeserializer deserializer);
@@ -237,6 +267,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
+  void sse_encode_aes_key_mode(AesKeyMode self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_aes_mode(AesMode self, SseSerializer serializer);
+
+  @protected
   void sse_encode_binary_encoding(
     BinaryEncoding self,
     SseSerializer serializer,
@@ -256,6 +292,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_compare_column(CompareColumn self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_compare_result(CompareResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_compare_status(CompareStatus self, SseSerializer serializer);
 
   @protected
   void sse_encode_f_64(double self, SseSerializer serializer);

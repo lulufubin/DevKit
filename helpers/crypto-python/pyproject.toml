@@ -1,0 +1,16 @@
+[project]
+name = "devkit-crypto-python"
+version = "0.1.0"
+description = "DevKit Python 加解密助手"
+requires-python = ">=3.12"
+dependencies = [
+    "cryptography>=43.0.0",
+]
+
+[dependency-groups]
+pack = [
+    "nuitka",
+]
+
+[tool.uv]
+package = false

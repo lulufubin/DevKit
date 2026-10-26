@@ -38,6 +38,9 @@ migrate_working_dir/
 /rust/target/
 **/target/
 /dist/
+/helpers/dist/
+/helpers/crypto-node/node_modules/
+/helpers/crypto-python/.venv/
 
 # Secrets and captured traffic
 *.pem

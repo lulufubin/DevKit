@@ -1,3 +1,4 @@
+use devkit_core::crypto_compare as compare;
 use devkit_core::crypto_tools as core;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -45,6 +46,41 @@ pub struct Sm2KeyPair {
     pub public_hex: String,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AesMode {
+    Gcm,
+    Cbc,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AesKeyMode {
+    Raw,
+    Passphrase,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CompareStatus {
+    Match,
+    Differ,
+    Unsupported,
+    Error,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CompareColumn {
+    pub label: String,
+    pub output: String,
+    pub status: CompareStatus,
+    pub message: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CompareResult {
+    pub rust: CompareColumn,
+    pub python: CompareColumn,
+    pub node: CompareColumn,
+}
+
 impl From<BinaryEncoding> for core::BinaryEncoding {
     fn from(value: BinaryEncoding) -> Self {
         match value {
@@ -90,6 +126,50 @@ impl From<Sm4Mode> for core::Sm4Mode {
             Sm4Mode::Ecb => Self::Ecb,
             Sm4Mode::Cbc => Self::Cbc,
         }
+    }
+}
+
+impl From<AesMode> for compare::AesMode {
+    fn from(value: AesMode) -> Self {
+        match value {
+            AesMode::Gcm => Self::Gcm,
+            AesMode::Cbc => Self::Cbc,
+        }
+    }
+}
+
+impl From<AesKeyMode> for compare::AesKeyMode {
+    fn from(value: AesKeyMode) -> Self {
+        match value {
+            AesKeyMode::Raw => Self::Raw,
+            AesKeyMode::Passphrase => Self::Passphrase,
+        }
+    }
+}
+
+fn map_status(status: compare::CompareStatus) -> CompareStatus {
+    match status {
+        compare::CompareStatus::Match => CompareStatus::Match,
+        compare::CompareStatus::Differ => CompareStatus::Differ,
+        compare::CompareStatus::Unsupported => CompareStatus::Unsupported,
+        compare::CompareStatus::Error => CompareStatus::Error,
+    }
+}
+
+fn map_column(column: compare::CompareColumn) -> CompareColumn {
+    CompareColumn {
+        label: column.label,
+        output: column.output,
+        status: map_status(column.status),
+        message: column.message,
+    }
+}
+
+fn map_result(result: compare::CompareResult) -> CompareResult {
+    CompareResult {
+        rust: map_column(result.rust),
+        python: map_column(result.python),
+        node: map_column(result.node),
     }
 }
 
@@ -332,4 +412,59 @@ pub fn sm4_decrypt(
         mode.into(),
         output_encoding.into(),
     )
+}
+
+pub fn compare_hash(input: String, encoding: BinaryEncoding, alg: HashAlg) -> Result<CompareResult, String> {
+    compare::compare_hash(&input, encoding.into(), alg.into()).map(map_result)
+}
+
+pub fn compare_hmac(
+    key: String,
+    key_encoding: BinaryEncoding,
+    message: String,
+    message_encoding: BinaryEncoding,
+) -> Result<CompareResult, String> {
+    compare::compare_hmac(&key, key_encoding.into(), &message, message_encoding.into()).map(map_result)
+}
+
+pub fn compare_aes_encrypt(
+    key: String,
+    key_encoding: BinaryEncoding,
+    plaintext: String,
+    plaintext_encoding: BinaryEncoding,
+    output_encoding: BinaryEncoding,
+    mode: AesMode,
+    key_mode: AesKeyMode,
+) -> Result<CompareResult, String> {
+    compare::compare_aes_encrypt(
+        &key,
+        key_encoding.into(),
+        &plaintext,
+        plaintext_encoding.into(),
+        output_encoding.into(),
+        mode.into(),
+        key_mode.into(),
+    )
+    .map(map_result)
+}
+
+pub fn compare_aes_decrypt(
+    key: String,
+    key_encoding: BinaryEncoding,
+    ciphertext: String,
+    ciphertext_encoding: BinaryEncoding,
+    output_encoding: BinaryEncoding,
+    mode: AesMode,
+    key_mode: AesKeyMode,
+) -> Result<CompareResult, String> {
+    compare::compare_aes_decrypt(
+        &key,
+        key_encoding.into(),
+        &ciphertext,
+        ciphertext_encoding.into(),
+        output_encoding.into(),
+        mode.into(),
+        key_mode.into(),
+    )
+    .map(map_result)
 }

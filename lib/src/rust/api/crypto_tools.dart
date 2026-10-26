@@ -7,7 +7,8 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`
+// These functions are ignored because they are not marked as `pub`: `map_column`, `map_result`, `map_status`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 Future<String> codecEncode({
   required String input,
@@ -235,7 +236,123 @@ Future<String> sm4Decrypt({
   outputEncoding: outputEncoding,
 );
 
+Future<CompareResult> compareHash({
+  required String input,
+  required BinaryEncoding encoding,
+  required HashAlg alg,
+}) => RustLib.instance.api.crateApiCryptoToolsCompareHash(
+  input: input,
+  encoding: encoding,
+  alg: alg,
+);
+
+Future<CompareResult> compareHmac({
+  required String key,
+  required BinaryEncoding keyEncoding,
+  required String message,
+  required BinaryEncoding messageEncoding,
+}) => RustLib.instance.api.crateApiCryptoToolsCompareHmac(
+  key: key,
+  keyEncoding: keyEncoding,
+  message: message,
+  messageEncoding: messageEncoding,
+);
+
+Future<CompareResult> compareAesEncrypt({
+  required String key,
+  required BinaryEncoding keyEncoding,
+  required String plaintext,
+  required BinaryEncoding plaintextEncoding,
+  required BinaryEncoding outputEncoding,
+  required AesMode mode,
+  required AesKeyMode keyMode,
+}) => RustLib.instance.api.crateApiCryptoToolsCompareAesEncrypt(
+  key: key,
+  keyEncoding: keyEncoding,
+  plaintext: plaintext,
+  plaintextEncoding: plaintextEncoding,
+  outputEncoding: outputEncoding,
+  mode: mode,
+  keyMode: keyMode,
+);
+
+Future<CompareResult> compareAesDecrypt({
+  required String key,
+  required BinaryEncoding keyEncoding,
+  required String ciphertext,
+  required BinaryEncoding ciphertextEncoding,
+  required BinaryEncoding outputEncoding,
+  required AesMode mode,
+  required AesKeyMode keyMode,
+}) => RustLib.instance.api.crateApiCryptoToolsCompareAesDecrypt(
+  key: key,
+  keyEncoding: keyEncoding,
+  ciphertext: ciphertext,
+  ciphertextEncoding: ciphertextEncoding,
+  outputEncoding: outputEncoding,
+  mode: mode,
+  keyMode: keyMode,
+);
+
+enum AesKeyMode { raw, passphrase }
+
+enum AesMode { gcm, cbc }
+
 enum BinaryEncoding { utf8, hex, base64 }
+
+class CompareColumn {
+  final String label;
+  final String output;
+  final CompareStatus status;
+  final String message;
+
+  const CompareColumn({
+    required this.label,
+    required this.output,
+    required this.status,
+    required this.message,
+  });
+
+  @override
+  int get hashCode =>
+      label.hashCode ^ output.hashCode ^ status.hashCode ^ message.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CompareColumn &&
+          runtimeType == other.runtimeType &&
+          label == other.label &&
+          output == other.output &&
+          status == other.status &&
+          message == other.message;
+}
+
+class CompareResult {
+  final CompareColumn rust;
+  final CompareColumn python;
+  final CompareColumn node;
+
+  const CompareResult({
+    required this.rust,
+    required this.python,
+    required this.node,
+  });
+
+  @override
+  int get hashCode => rust.hashCode ^ python.hashCode ^ node.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CompareResult &&
+          runtimeType == other.runtimeType &&
+          rust == other.rust &&
+          python == other.python &&
+          node == other.node;
+}
+
+enum CompareStatus { match, differ, unsupported, error }
 
 enum HashAlg { md5, sha1, sha256, sm3 }
 

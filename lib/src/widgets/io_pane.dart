@@ -97,6 +97,7 @@ class IoBox extends StatelessWidget {
     this.onOpen,
     this.onCopy,
     this.dense = false,
+    this.status,
   });
 
   final String label;
@@ -104,6 +105,7 @@ class IoBox extends StatelessWidget {
   final VoidCallback? onOpen;
   final VoidCallback? onCopy;
   final bool dense;
+  final String? status;
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +114,13 @@ class IoBox extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text(label, style: Theme.of(context).textTheme.titleSmall)),
+            Expanded(
+              child: Text(
+                status == null || status!.isEmpty ? label : '$label · $status',
+                style: Theme.of(context).textTheme.titleSmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             if (onOpen != null)
               TextButton.icon(
                 onPressed: onOpen,

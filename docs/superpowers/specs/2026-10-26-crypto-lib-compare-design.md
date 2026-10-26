@@ -87,8 +87,8 @@ AES-GCM 加密时 nonce 仍随机；对比时 **Rust 先算，把 nonce/IV/salt 
 
 **Python（Nuitka）**
 
-- 源码：`helpers/crypto-python/`（入口脚本 + `requirements.txt`：`cryptography`、`nuitka`）。
-- CI / `scripts/pack-helpers.ps1` 用 Nuitka `--standalone`（不用 onefile，避免每次对比都解压）。
+- 源码：`helpers/crypto-python/`（入口脚本 + `pyproject.toml`：`cryptography`；打包额外依赖 `nuitka`）。用 `uv` 同步与运行，不直接调用系统 `python` / `pip`。
+- CI / `scripts/pack-helpers.ps1` 用 `uv run` 调 Nuitka `--standalone`（不用 onefile，避免每次对比都解压）。
 - 产物：`helpers/dist/crypto-python/`，主程序名 `devkit-crypto-python.exe`。
 - Windows runner 已有 MSVC，供 Nuitka 编译。
 
