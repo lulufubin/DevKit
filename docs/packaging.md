@@ -26,7 +26,7 @@
 需要 Flutter 和 [Inno Setup 6](https://jrsoftware.org/isinfo.php)，产出 `dist/devkit-desktop-windows-amd64.exe`。
 
 ```powershell
-& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DMyAppVersion=0.2.1 /DSourcePath=build\windows\x64\runner\Release installer\devkit.iss
+& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DMyAppVersion=0.2.2 /DSourcePath=build\windows\x64\runner\Release installer\devkit.iss
 ```
 
 ## GitHub 测试、合并、打包

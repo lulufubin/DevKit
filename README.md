@@ -14,10 +14,15 @@
 
 ## 更新日志
 
+### 0.2.2
+
+- 哈希 / AES / HMAC 可对比 Rust、内置 Python（Nuitka + uv）与 crypto-js（pnpm）
+- 加解密输入输出左右并排并拉满剩余高度
+- JSON 格式化与压缩合并为同一编辑器，支持严格 / 宽容（尾逗号）
+- 亮暗 logo、可覆盖的主题、思源黑体
+
 ### 0.2.1
 
-- 哈希 / AES / HMAC 可对比 Rust、内置 Python（Nuitka）与 crypto-js
-- 加解密各页输入输出左右并排，占满剩余高度
 - 发布物只保留图形界面安装包 `devkit-desktop-windows-amd64.exe`，不再附带命令行二进制
 
 ### 0.2.0
