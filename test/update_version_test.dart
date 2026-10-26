@@ -16,7 +16,7 @@ void main() {
 
   test('picks desktop installer asset', () {
     const assets = [
-      GithubAsset(name: 'devkit-cli-windows-amd64.exe', url: 'https://example/cli'),
+      GithubAsset(name: 'notes.txt', url: 'https://example/notes'),
       GithubAsset(name: 'devkit-desktop-windows-amd64.exe', url: 'https://example/setup'),
     ];
     expect(findDesktopInstaller(assets)?.url, 'https://example/setup');
