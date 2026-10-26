@@ -13,6 +13,15 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 const _seed = Color(0xFF1565C0);
+const sourceHanSansFamily = 'SourceHanSans';
+
+ThemeData _appTheme(Brightness brightness) {
+  return ThemeData(
+    colorScheme: ColorScheme.fromSeed(seedColor: _seed, brightness: brightness),
+    useMaterial3: true,
+    fontFamily: sourceHanSansFamily,
+  );
+}
 
 class DevKitApp extends StatefulWidget {
   const DevKitApp({super.key, this.theme, this.releases});
@@ -52,14 +61,8 @@ class _DevKitAppState extends State<DevKitApp> {
         return MaterialApp(
           title: 'DevKit',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: _seed),
-            useMaterial3: true,
-          ),
-          darkTheme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: _seed, brightness: Brightness.dark),
-            useMaterial3: true,
-          ),
+          theme: _appTheme(Brightness.light),
+          darkTheme: _appTheme(Brightness.dark),
           themeMode: _theme.mode,
           home: WorkbenchShell(theme: _theme, releases: widget.releases),
         );
@@ -82,6 +85,14 @@ class WorkbenchShell extends StatefulWidget {
 
 class _WorkbenchShellState extends State<WorkbenchShell> {
   ToolKind _tool = ToolKind.jsonFormat;
+  late final List<Widget> _pages = [
+    const JsonFormatPage(),
+    const JsonMinifyPage(),
+    const JsonDiffPage(),
+    const CryptoPage(),
+    const HarPage(),
+    AboutPage(theme: widget.theme, releases: widget.releases),
+  ];
 
   @override
   void initState() {
@@ -164,26 +175,14 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
             ],
           ),
           const VerticalDivider(width: 1),
-          Expanded(child: _pageFor(_tool)),
+          Expanded(
+            child: IndexedStack(
+              index: _tool.index,
+              children: _pages,
+            ),
+          ),
         ],
       ),
     );
-  }
-
-  Widget _pageFor(ToolKind tool) {
-    switch (tool) {
-      case ToolKind.jsonFormat:
-        return const JsonFormatPage();
-      case ToolKind.jsonMinify:
-        return const JsonMinifyPage();
-      case ToolKind.jsonDiff:
-        return const JsonDiffPage();
-      case ToolKind.crypto:
-        return const CryptoPage();
-      case ToolKind.har:
-        return const HarPage();
-      case ToolKind.about:
-        return AboutPage(theme: widget.theme, releases: widget.releases);
-    }
   }
 }

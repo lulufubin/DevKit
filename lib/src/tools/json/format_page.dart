@@ -36,7 +36,6 @@ class _JsonFormatPageState extends State<JsonFormatPage> with ToolFeedback {
   @override
   Widget build(BuildContext context) {
     return ToolScaffold(
-      title: 'JSON 格式化',
       child: IoPane(
         input: _input,
         output: _output,
