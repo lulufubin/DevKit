@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cli:
+    name: CLI ${{ matrix.artifact }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: devkit-windows-amd64.exe
+            bin: target/release/devkit.exe
+          - os: ubuntu-latest
+            artifact: devkit-linux-amd64
+            bin: target/release/devkit
+          - os: macos-latest
+            artifact: devkit-macos-arm64
+            bin: target/release/devkit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release -p devkit-cli --locked
+      - name: Stage artifact
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp "${{ matrix.bin }}" "dist/${{ matrix.artifact }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}
+
+  desktop-windows:
+    name: Flutter Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - name: Zip desktop app
+        shell: pwsh
+        run: |
+          $src = "build\windows\x64\runner\Release"
+          if (-not (Test-Path $src)) { $src = "build\windows\runner\Release" }
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path "$src\*" -DestinationPath dist\devkit-desktop-windows-amd64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: devkit-desktop-windows-amd64.zip
+          path: dist/devkit-desktop-windows-amd64.zip
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [cli, desktop-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Flatten artifacts
+        run: |
+          mkdir -p dist
+          find artifacts -type f -exec cp {} dist/ \;
+          ls -la dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

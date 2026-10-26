@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "cursor/**"]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    name: cargo test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --workspace --locked
+      - run: cargo check --manifest-path rust/Cargo.toml --locked
+      - name: CLI encrypt/decrypt roundtrip
+        shell: bash
+        run: |
+          WORK="${RUNNER_TEMP}/devkit-roundtrip"
+          mkdir -p "$WORK"
+          printf 'hello-devkit' > "$WORK/plain.txt"
+          cargo run -p devkit-cli --locked -- encrypt --input "$WORK/plain.txt" --output "$WORK/plain.txt.age" --passphrase testpass
+          cargo run -p devkit-cli --locked -- decrypt --input "$WORK/plain.txt.age" --output "$WORK/out.txt" --passphrase testpass
+          diff "$WORK/plain.txt" "$WORK/out.txt"
+
+  flutter:
+    name: flutter analyze + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test

@@ -1,0 +1,11 @@
+[package]
+name = "devkit-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Streaming file operations shared by the DevKit CLI and desktop app"
+
+[dependencies]
+age = "0.11"
+thiserror = "2"

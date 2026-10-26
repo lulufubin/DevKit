@@ -1,20 +1,51 @@
-# Python
-.venv/
-__pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# Packaging
-dist/
-build/
-
-# OS
-Thumbs.db
-Desktop.ini
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
 .DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Flutter / Dart
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+.widget_preview/
+
+# Platform ephemeral (plugin junctions live here)
+/linux/flutter/ephemeral/
+/macos/Flutter/ephemeral/
+/windows/flutter/ephemeral/
+
+# Rust
+/rust/target/
+**/target/
+/dist/
+
+# Secrets and captured traffic
+*.pem
+*.key
+secrets/
+artifacts/*.har
+http_log/
+
+# Symbolication / obfuscation
+app.*.symbols
+app.*.map.json
