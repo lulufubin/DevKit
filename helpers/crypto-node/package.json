@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "DevKit crypto-js helper",
   "main": "index.js",
+  "packageManager": "pnpm@12.9.1",
   "dependencies": {
     "crypto-js": "^4.2.0"
   }

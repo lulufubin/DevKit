@@ -23,9 +23,14 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: pnpm
+          cache-dependency-path: helpers/crypto-node/pnpm-lock.yaml
       - name: Pack Python / Node helpers
         shell: pwsh
         run: .\scripts\pack-helpers.ps1

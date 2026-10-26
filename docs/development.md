@@ -72,7 +72,7 @@ cargo run -p devkit-cli -- decrypt --input secret.bin.age --output secret.bin
 .\scripts\test-helpers.ps1
 ```
 
-源码自测用 `uv` 管 Python（`helpers/crypto-python/pyproject.toml`），不要直接调系统 `python` / `pip`。还需要 Node（`npm --prefix helpers/crypto-node install`）。密钥只经 stdin，不要写进日志。
+源码自测用 `uv` 管 Python（`helpers/crypto-python/pyproject.toml`），用 `pnpm` 管 Node（`helpers/crypto-node`）。不要直接调用系统 `python` / `pip` / `npm`。密钥只经 stdin，不要写进日志。
 
 ## 约定
 

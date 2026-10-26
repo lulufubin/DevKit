@@ -27,15 +27,14 @@ if (-not $built) { throw "Nuitka dist folder not found" }
 Move-Item $built.FullName $pyOut
 
 $nodeDir = Join-Path $Root "helpers\crypto-node"
-Write-Host "npm install crypto-js..."
-if (Get-Command npm -ErrorAction SilentlyContinue) {
-    Push-Location $nodeDir
-    npm install --omit=dev
-    if ($LASTEXITCODE -ne 0) { Pop-Location; throw "npm install failed" }
-    Pop-Location
-} else {
-    throw "Need npm to pack the Node helper"
+Write-Host "pnpm install crypto-js..."
+if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+    throw "Need pnpm to pack the Node helper. Install: https://pnpm.io/installation"
 }
+Push-Location $nodeDir
+pnpm install --prod
+if ($LASTEXITCODE -ne 0) { Pop-Location; throw "pnpm install failed" }
+Pop-Location
 
 $nodeVer = "v22.21.0"
 $zipName = "node-$nodeVer-win-x64.zip"

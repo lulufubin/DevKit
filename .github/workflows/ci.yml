@@ -41,13 +41,18 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: pnpm
+          cache-dependency-path: helpers/crypto-node/pnpm-lock.yaml
       - run: uv sync --project helpers/crypto-python
       - name: Install crypto-js
         working-directory: helpers/crypto-node
-        run: npm install --omit=dev
+        run: pnpm install --prod
       - run: pwsh -File scripts/test-helpers.ps1
 
   flutter:
