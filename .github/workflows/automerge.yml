@@ -32,7 +32,7 @@ jobs:
           for _ in $(seq 1 90); do
             json=$(gh run list --repo "$REPO" --commit "$SHA" --workflow CI --json status,conclusion --limit 5)
             pending=$(printf '%s' "$json" | jq '[.[] | select(.status != "completed")] | length')
-            failed=$(printf '%s' "$json" | jq '[.[] | select(.conclusion != null and .conclusion != "success" and .conclusion != "skipped")] | length')
+            failed=$(printf '%s' "$json" | jq '[.[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "startup_failure")] | length')
             succeeded=$(printf '%s' "$json" | jq '[.[] | select(.conclusion == "success")] | length')
             echo "pending=$pending failed=$failed succeeded=$succeeded"
             if [ "$failed" -gt 0 ]; then
