@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:devkit/src/rust/api/har.dart';
+import 'package:devkit/src/tools/har/har_detail_pane.dart';
 import 'package:devkit/src/widgets/tool_scaffold.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -119,38 +120,16 @@ class _HarPageState extends State<HarPage> with ToolFeedback {
                   flex: 4,
                   child: detail == null
                       ? const Center(child: Text('选择一条请求查看详情'))
-                      : ListView(
-                          padding: const EdgeInsets.all(12),
-                          children: [
-                            Text('${detail!.method} ${detail!.status}  ${detail!.url}', style: Theme.of(context).textTheme.titleMedium),
-                            const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: FilledButton.tonal(
-                                onPressed: () async {
-                                  try {
-                                    final code = await harToPython(id: detail!.id);
-                                    await reportCopied(code);
-                                  } catch (error) {
-                                    reportError(error);
-                                  }
-                                },
-                                child: const Text('复制为 Python'),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text('请求头', style: Theme.of(context).textTheme.titleSmall),
-                            ...detail!.requestHeaders.map((h) => Text('${h.name}: ${h.value}')),
-                            const SizedBox(height: 12),
-                            Text('请求体', style: Theme.of(context).textTheme.titleSmall),
-                            SelectableText(detail!.requestBody.isEmpty ? '（空）' : detail!.requestBody),
-                            const SizedBox(height: 12),
-                            Text('响应头', style: Theme.of(context).textTheme.titleSmall),
-                            ...detail!.responseHeaders.map((h) => Text('${h.name}: ${h.value}')),
-                            const SizedBox(height: 12),
-                            Text('响应体 · ${detail!.mimeType}', style: Theme.of(context).textTheme.titleSmall),
-                            SelectableText(detail!.responseBody.isEmpty ? '（空）' : detail!.responseBody),
-                          ],
+                      : HarDetailPane(
+                          detail: detail!,
+                          onCopyPython: () async {
+                            try {
+                              final code = await harToPython(id: detail!.id);
+                              await reportCopied(code);
+                            } catch (error) {
+                              reportError(error);
+                            }
+                          },
                         ),
                 ),
               ],

@@ -1674,22 +1674,38 @@ impl SseDecode for crate::api::har::HarEntryDetail {
         let mut var_url = <String>::sse_decode(deserializer);
         let mut var_status = <i32>::sse_decode(deserializer);
         let mut var_timeMs = <f64>::sse_decode(deserializer);
+        let mut var_size = <i64>::sse_decode(deserializer);
+        let mut var_httpVersion = <String>::sse_decode(deserializer);
+        let mut var_statusText = <String>::sse_decode(deserializer);
         let mut var_requestHeaders = <Vec<crate::api::har::HarHeader>>::sse_decode(deserializer);
         let mut var_responseHeaders = <Vec<crate::api::har::HarHeader>>::sse_decode(deserializer);
+        let mut var_cookies = <Vec<crate::api::har::HarHeader>>::sse_decode(deserializer);
+        let mut var_query = <Vec<crate::api::har::HarHeader>>::sse_decode(deserializer);
         let mut var_requestBody = <String>::sse_decode(deserializer);
         let mut var_responseBody = <String>::sse_decode(deserializer);
-        let mut var_mimeType = <String>::sse_decode(deserializer);
+        let mut var_requestMime = <String>::sse_decode(deserializer);
+        let mut var_responseMime = <String>::sse_decode(deserializer);
+        let mut var_requestRaw = <String>::sse_decode(deserializer);
+        let mut var_responseRaw = <String>::sse_decode(deserializer);
         return crate::api::har::HarEntryDetail {
             id: var_id,
             method: var_method,
             url: var_url,
             status: var_status,
             time_ms: var_timeMs,
+            size: var_size,
+            http_version: var_httpVersion,
+            status_text: var_statusText,
             request_headers: var_requestHeaders,
             response_headers: var_responseHeaders,
+            cookies: var_cookies,
+            query: var_query,
             request_body: var_requestBody,
             response_body: var_responseBody,
-            mime_type: var_mimeType,
+            request_mime: var_requestMime,
+            response_mime: var_responseMime,
+            request_raw: var_requestRaw,
+            response_raw: var_responseRaw,
         };
     }
 }
@@ -2232,11 +2248,19 @@ impl flutter_rust_bridge::IntoDart for crate::api::har::HarEntryDetail {
             self.url.into_into_dart().into_dart(),
             self.status.into_into_dart().into_dart(),
             self.time_ms.into_into_dart().into_dart(),
+            self.size.into_into_dart().into_dart(),
+            self.http_version.into_into_dart().into_dart(),
+            self.status_text.into_into_dart().into_dart(),
             self.request_headers.into_into_dart().into_dart(),
             self.response_headers.into_into_dart().into_dart(),
+            self.cookies.into_into_dart().into_dart(),
+            self.query.into_into_dart().into_dart(),
             self.request_body.into_into_dart().into_dart(),
             self.response_body.into_into_dart().into_dart(),
-            self.mime_type.into_into_dart().into_dart(),
+            self.request_mime.into_into_dart().into_dart(),
+            self.response_mime.into_into_dart().into_dart(),
+            self.request_raw.into_into_dart().into_dart(),
+            self.response_raw.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2634,11 +2658,19 @@ impl SseEncode for crate::api::har::HarEntryDetail {
         <String>::sse_encode(self.url, serializer);
         <i32>::sse_encode(self.status, serializer);
         <f64>::sse_encode(self.time_ms, serializer);
+        <i64>::sse_encode(self.size, serializer);
+        <String>::sse_encode(self.http_version, serializer);
+        <String>::sse_encode(self.status_text, serializer);
         <Vec<crate::api::har::HarHeader>>::sse_encode(self.request_headers, serializer);
         <Vec<crate::api::har::HarHeader>>::sse_encode(self.response_headers, serializer);
+        <Vec<crate::api::har::HarHeader>>::sse_encode(self.cookies, serializer);
+        <Vec<crate::api::har::HarHeader>>::sse_encode(self.query, serializer);
         <String>::sse_encode(self.request_body, serializer);
         <String>::sse_encode(self.response_body, serializer);
-        <String>::sse_encode(self.mime_type, serializer);
+        <String>::sse_encode(self.request_mime, serializer);
+        <String>::sse_encode(self.response_mime, serializer);
+        <String>::sse_encode(self.request_raw, serializer);
+        <String>::sse_encode(self.response_raw, serializer);
     }
 }
 

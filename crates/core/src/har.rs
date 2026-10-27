@@ -29,12 +29,18 @@ pub struct HarEntryDetail {
     pub status: i32,
     pub time_ms: f64,
     pub size: i64,
+    pub http_version: String,
+    pub status_text: String,
     pub request_headers: Vec<HarHeader>,
     pub response_headers: Vec<HarHeader>,
+    pub cookies: Vec<HarHeader>,
+    pub query: Vec<HarHeader>,
     pub request_body: Option<String>,
     pub response_body: Option<String>,
     pub request_mime: Option<String>,
     pub response_mime: Option<String>,
+    pub request_raw: String,
+    pub response_raw: String,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -196,19 +202,53 @@ fn detail_from_entry(entry: &StoredEntry) -> HarEntryDetail {
     let response = entry.raw.get("response").cloned().unwrap_or(Value::Null);
     let request_headers = parse_headers(request.get("headers"));
     let response_headers = parse_headers(response.get("headers"));
+    let cookies = parse_cookie_headers(&request, &request_headers);
+    let query = parse_query(&request);
     let request_mime = request
         .pointer("/postData/mimeType")
         .and_then(Value::as_str)
-        .map(ToOwned::to_owned);
+        .map(ToOwned::to_owned)
+        .or_else(|| header_value(&request_headers, "content-type"));
     let response_mime = response
         .pointer("/content/mimeType")
         .and_then(Value::as_str)
-        .map(ToOwned::to_owned);
+        .map(ToOwned::to_owned)
+        .or_else(|| header_value(&response_headers, "content-type"));
     let request_body = request
         .pointer("/postData/text")
         .and_then(Value::as_str)
         .map(ToOwned::to_owned);
     let response_body = decode_content_text(response.get("content"));
+    let http_version = string_field(&request, "httpVersion");
+    let status_text = string_field(&response, "statusText");
+    let request_raw = format_http_message(
+        &format!(
+            "{} {} {}",
+            entry.summary.method,
+            request_target(&entry.summary.url),
+            if http_version.is_empty() {
+                "HTTP/1.1"
+            } else {
+                &http_version
+            }
+        ),
+        &request_headers,
+        request_body.as_deref().unwrap_or(""),
+    );
+    let response_raw = format_http_message(
+        &format!(
+            "{} {} {}",
+            if http_version.is_empty() {
+                "HTTP/1.1"
+            } else {
+                &http_version
+            },
+            entry.summary.status,
+            status_text
+        ),
+        &response_headers,
+        response_body.as_deref().unwrap_or(""),
+    );
     HarEntryDetail {
         id: entry.summary.id.clone(),
         method: entry.summary.method.clone(),
@@ -216,12 +256,18 @@ fn detail_from_entry(entry: &StoredEntry) -> HarEntryDetail {
         status: entry.summary.status,
         time_ms: entry.summary.time_ms,
         size: entry.summary.size,
+        http_version,
+        status_text,
         request_headers,
         response_headers,
+        cookies,
+        query,
         request_body,
         response_body,
         request_mime,
         response_mime,
+        request_raw,
+        response_raw,
     }
 }
 
@@ -377,6 +423,45 @@ fn python_from_entry(raw: &Value, summary: &HarEntrySummary) -> String {
     out
 }
 
+fn parse_cookie_headers(request: &Value, headers: &[HarHeader]) -> Vec<HarHeader> {
+    parse_cookies(request, headers)
+        .into_iter()
+        .map(|(name, value)| HarHeader { name, value })
+        .collect()
+}
+
+fn parse_query(request: &Value) -> Vec<HarHeader> {
+    parse_headers(request.get("queryString"))
+}
+
+fn header_value(headers: &[HarHeader], name: &str) -> Option<String> {
+    headers
+        .iter()
+        .find(|header| header.name.eq_ignore_ascii_case(name))
+        .map(|header| header.value.clone())
+}
+
+fn request_target(url: &str) -> String {
+    url.split_once("://")
+        .and_then(|(_, rest)| rest.find('/').map(|idx| rest[idx..].to_string()))
+        .filter(|path| !path.is_empty())
+        .unwrap_or_else(|| "/".to_string())
+}
+
+fn format_http_message(start_line: &str, headers: &[HarHeader], body: &str) -> String {
+    let mut out = String::from(start_line.trim());
+    out.push_str("\r\n");
+    for header in headers {
+        out.push_str(&header.name);
+        out.push_str(": ");
+        out.push_str(&header.value);
+        out.push_str("\r\n");
+    }
+    out.push_str("\r\n");
+    out.push_str(body);
+    out
+}
+
 fn parse_cookies(request: &Value, headers: &[HarHeader]) -> Vec<(String, String)> {
     if let Some(items) = request.get("cookies").and_then(Value::as_array) {
         let parsed: Vec<(String, String)> = items
@@ -513,6 +598,22 @@ mod tests {
         assert_eq!(rows[0].method, "POST");
         assert_eq!(rows[0].status, 201);
         assert_eq!(rows[1].url, "https://example.com/health");
+    }
+
+    #[test]
+    fn detail_splits_cookies_query_and_raw_http() {
+        let _guard = TEST_LOCK.lock().unwrap_or_else(|err| err.into_inner());
+        har_import_text(SAMPLE_HAR).unwrap();
+        let detail = har_entry("0").unwrap();
+        assert_eq!(detail.cookies, vec![HarHeader { name: "session".into(), value: "abc".into() }]);
+        assert!(detail.query.is_empty());
+        assert!(detail.request_raw.contains("POST /api/users HTTP/1.1"));
+        assert!(detail.request_raw.contains("Content-Type: application/json"));
+        assert!(detail.request_raw.contains("{\"name\":\"ada\"}"));
+        assert!(detail.response_raw.contains("HTTP/1.1 201 Created"));
+        assert!(detail.response_raw.contains("{\"ok\":true}"));
+        assert_eq!(detail.request_mime.as_deref(), Some("application/json"));
+        assert_eq!(detail.response_mime.as_deref(), Some("application/json"));
     }
 
     #[test]

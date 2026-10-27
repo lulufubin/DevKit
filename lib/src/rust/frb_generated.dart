@@ -1933,19 +1933,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   HarEntryDetail dco_decode_har_entry_detail(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 10)
-      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
+    if (arr.length != 18)
+      throw Exception('unexpected arr length: expect 18 but see ${arr.length}');
     return HarEntryDetail(
       id: dco_decode_String(arr[0]),
       method: dco_decode_String(arr[1]),
       url: dco_decode_String(arr[2]),
       status: dco_decode_i_32(arr[3]),
       timeMs: dco_decode_f_64(arr[4]),
-      requestHeaders: dco_decode_list_har_header(arr[5]),
-      responseHeaders: dco_decode_list_har_header(arr[6]),
-      requestBody: dco_decode_String(arr[7]),
-      responseBody: dco_decode_String(arr[8]),
-      mimeType: dco_decode_String(arr[9]),
+      size: dco_decode_i_64(arr[5]),
+      httpVersion: dco_decode_String(arr[6]),
+      statusText: dco_decode_String(arr[7]),
+      requestHeaders: dco_decode_list_har_header(arr[8]),
+      responseHeaders: dco_decode_list_har_header(arr[9]),
+      cookies: dco_decode_list_har_header(arr[10]),
+      query: dco_decode_list_har_header(arr[11]),
+      requestBody: dco_decode_String(arr[12]),
+      responseBody: dco_decode_String(arr[13]),
+      requestMime: dco_decode_String(arr[14]),
+      responseMime: dco_decode_String(arr[15]),
+      requestRaw: dco_decode_String(arr[16]),
+      responseRaw: dco_decode_String(arr[17]),
     );
   }
 
@@ -2246,22 +2254,38 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_url = sse_decode_String(deserializer);
     var var_status = sse_decode_i_32(deserializer);
     var var_timeMs = sse_decode_f_64(deserializer);
+    var var_size = sse_decode_i_64(deserializer);
+    var var_httpVersion = sse_decode_String(deserializer);
+    var var_statusText = sse_decode_String(deserializer);
     var var_requestHeaders = sse_decode_list_har_header(deserializer);
     var var_responseHeaders = sse_decode_list_har_header(deserializer);
+    var var_cookies = sse_decode_list_har_header(deserializer);
+    var var_query = sse_decode_list_har_header(deserializer);
     var var_requestBody = sse_decode_String(deserializer);
     var var_responseBody = sse_decode_String(deserializer);
-    var var_mimeType = sse_decode_String(deserializer);
+    var var_requestMime = sse_decode_String(deserializer);
+    var var_responseMime = sse_decode_String(deserializer);
+    var var_requestRaw = sse_decode_String(deserializer);
+    var var_responseRaw = sse_decode_String(deserializer);
     return HarEntryDetail(
       id: var_id,
       method: var_method,
       url: var_url,
       status: var_status,
       timeMs: var_timeMs,
+      size: var_size,
+      httpVersion: var_httpVersion,
+      statusText: var_statusText,
       requestHeaders: var_requestHeaders,
       responseHeaders: var_responseHeaders,
+      cookies: var_cookies,
+      query: var_query,
       requestBody: var_requestBody,
       responseBody: var_responseBody,
-      mimeType: var_mimeType,
+      requestMime: var_requestMime,
+      responseMime: var_responseMime,
+      requestRaw: var_requestRaw,
+      responseRaw: var_responseRaw,
     );
   }
 
@@ -2600,11 +2624,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.url, serializer);
     sse_encode_i_32(self.status, serializer);
     sse_encode_f_64(self.timeMs, serializer);
+    sse_encode_i_64(self.size, serializer);
+    sse_encode_String(self.httpVersion, serializer);
+    sse_encode_String(self.statusText, serializer);
     sse_encode_list_har_header(self.requestHeaders, serializer);
     sse_encode_list_har_header(self.responseHeaders, serializer);
+    sse_encode_list_har_header(self.cookies, serializer);
+    sse_encode_list_har_header(self.query, serializer);
     sse_encode_String(self.requestBody, serializer);
     sse_encode_String(self.responseBody, serializer);
-    sse_encode_String(self.mimeType, serializer);
+    sse_encode_String(self.requestMime, serializer);
+    sse_encode_String(self.responseMime, serializer);
+    sse_encode_String(self.requestRaw, serializer);
+    sse_encode_String(self.responseRaw, serializer);
   }
 
   @protected
