@@ -1,4 +1,5 @@
 import 'package:devkit/src/rust/api/json.dart';
+import 'package:devkit/src/tools/json/json_strict_checkbox.dart';
 import 'package:devkit/src/widgets/fast_text_field.dart';
 import 'package:devkit/src/widgets/io_pane.dart';
 import 'package:devkit/src/widgets/tool_scaffold.dart';
@@ -60,13 +61,11 @@ class _JsonDiffPageState extends State<JsonDiffPage> with ToolFeedback {
               runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                SegmentedButton<JsonMode>(
-                  segments: const [
-                    ButtonSegment(value: JsonMode.lenient, label: Text('宽容')),
-                    ButtonSegment(value: JsonMode.strict, label: Text('严格')),
-                  ],
-                  selected: {_mode},
-                  onSelectionChanged: _busy ? null : (next) => setState(() => _mode = next.single),
+                JsonStrictCheckbox(
+                  value: _mode == JsonMode.strict,
+                  onChanged: _busy
+                      ? null
+                      : (strict) => setState(() => _mode = strict ? JsonMode.strict : JsonMode.lenient),
                 ),
                 FilledButton(onPressed: _busy ? null : _run, child: Text(_busy ? '对比中…' : '对比')),
               ],
