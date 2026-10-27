@@ -1,5 +1,4 @@
 import 'package:devkit/src/app.dart';
-import 'package:devkit/src/rust/api/json.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -69,7 +68,7 @@ void main() {
     await openTool(tester, '关于');
     await openTool(tester, 'JSON');
     expect(fieldText(tester, find.byType(TextField).first), '{"keep":1}');
-    expect(tester.widget<SegmentedButton<JsonMode>>(find.byType(SegmentedButton<JsonMode>)).selected, {JsonMode.strict});
+    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
 
     await openTool(tester, 'JSON 对比');
     expect(fieldText(tester, find.byType(TextField).first), '{"left":true}');

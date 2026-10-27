@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:devkit/src/rust/api/json.dart';
+import 'package:devkit/src/tools/json/json_strict_checkbox.dart';
 import 'package:devkit/src/tools/json/json_text.dart';
 import 'package:devkit/src/widgets/fast_text_field.dart';
 import 'package:devkit/src/widgets/io_pane.dart';
@@ -101,15 +102,11 @@ class _JsonPageState extends State<JsonPage> with ToolFeedback {
                 runSpacing: 4,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  SegmentedButton<JsonMode>(
-                    segments: const [
-                      ButtonSegment(value: JsonMode.lenient, label: Text('宽容')),
-                      ButtonSegment(value: JsonMode.strict, label: Text('严格')),
-                    ],
-                    selected: {_mode},
-                    onSelectionChanged: _busy
+                  JsonStrictCheckbox(
+                    value: _mode == JsonMode.strict,
+                    onChanged: _busy
                         ? null
-                        : (next) => setState(() => _mode = next.single),
+                        : (strict) => setState(() => _mode = strict ? JsonMode.strict : JsonMode.lenient),
                   ),
                   _Action(label: '打开', onPressed: _busy ? null : () => loadFileInto(context, _text)),
                   _Action(label: '保存', onPressed: _busy ? null : _save),
