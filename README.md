@@ -8,7 +8,7 @@
 
 - **JSON**：同一编辑器里格式化 / 压缩 / 转义，支持严格与宽容（尾逗号如 `{},`）解析；另有结构对比
 - **加解密**：Base64 / URL / Hex、MD5 / SHA-1 / SHA-256、AES-256-GCM、HMAC-SHA256、RSA、国密 SM2 / SM3 / SM4；哈希 / AES / HMAC 可对比 Rust、Python、crypto-js
-- **HAR**：导入、筛选、详情、导出，以及复制为 Python `requests`
+- **HAR**：导入、筛选、详情、导出，以及复制为 Python `requests`（不设文件大小上限）
 
 开发说明见 [docs/development.md](docs/development.md)，安装与发布见 [docs/packaging.md](docs/packaging.md)。
 

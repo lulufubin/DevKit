@@ -5,8 +5,6 @@ use std::sync::{Mutex, MutexGuard};
 use serde::Deserialize;
 use serde_json::{json, Value};
 
-use crate::json::{ensure_size_limit, MAX_TEXT_BYTES};
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct HarEntrySummary {
     pub id: String,
@@ -80,7 +78,6 @@ static STORE: Mutex<HarStore> = Mutex::new(HarStore {
 });
 
 pub fn har_import_text(text: &str) -> Result<Vec<HarEntrySummary>, String> {
-    ensure_size_limit(text, MAX_TEXT_BYTES)?;
     let parsed: HarFile = serde_json::from_str(text).map_err(|err| {
         format!("无法解析 HAR: {} (行 {}, 列 {})", err, err.line(), err.column())
     })?;
@@ -100,10 +97,6 @@ pub fn har_import_text(text: &str) -> Result<Vec<HarEntrySummary>, String> {
 }
 
 pub fn har_import_path(path: &str) -> Result<Vec<HarEntrySummary>, String> {
-    let meta = std::fs::metadata(path).map_err(|err| err.to_string())?;
-    if meta.len() > MAX_TEXT_BYTES as u64 {
-        return Err(format!("文本超过 {MAX_TEXT_BYTES} 字节上限"));
-    }
     let text = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
     har_import_text(&text)
 }
@@ -438,6 +431,7 @@ fn py_str(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::json::MAX_TEXT_BYTES;
 
     static TEST_LOCK: Mutex<()> = Mutex::new(());
 
@@ -565,5 +559,17 @@ mod tests {
         let err = har_entry("missing").unwrap_err();
         assert!(err.contains("未找到"));
         assert!(har_to_python("999").is_err());
+    }
+
+    #[test]
+    fn import_har_larger_than_text_cap() {
+        let _guard = TEST_LOCK.lock().unwrap_or_else(|err| err.into_inner());
+        let pad = " ".repeat(MAX_TEXT_BYTES + 1);
+        let text = format!(
+            r#"{{"log":{{"version":"1.2","creator":{{"name":"x","version":"1"}},"comment":"{pad}","entries":[]}}}}"#
+        );
+        assert!(text.len() > MAX_TEXT_BYTES);
+        let rows = har_import_text(&text).unwrap();
+        assert!(rows.is_empty());
     }
 }

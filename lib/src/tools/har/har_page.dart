@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:devkit/src/rust/api/har.dart';
-import 'package:devkit/src/widgets/io_pane.dart';
 import 'package:devkit/src/widgets/tool_scaffold.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -35,10 +34,6 @@ class _HarPageState extends State<HarPage> with ToolFeedback {
     final result = await FilePicker.platform.pickFiles(allowedExtensions: const ['har', 'json'], type: FileType.custom);
     final path = result?.files.single.path;
     if (path == null) return;
-    if (await File(path).length() > maxTextBytes) {
-      reportError('文件超过 20MB 上限');
-      return;
-    }
     setState(() => busy = true);
     try {
       items = await harImportText(text: await File(path).readAsString());
