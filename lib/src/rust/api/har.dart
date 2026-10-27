@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `detail`, `empty_to_none`, `summary`
+// These functions are ignored because they are not marked as `pub`: `detail`, `empty_to_none`, `header`, `summary`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 Future<List<HarEntrySummary>> harImportText({required String text}) =>
@@ -36,11 +36,19 @@ class HarEntryDetail {
   final String url;
   final int status;
   final double timeMs;
+  final PlatformInt64 size;
+  final String httpVersion;
+  final String statusText;
   final List<HarHeader> requestHeaders;
   final List<HarHeader> responseHeaders;
+  final List<HarHeader> cookies;
+  final List<HarHeader> query;
   final String requestBody;
   final String responseBody;
-  final String mimeType;
+  final String requestMime;
+  final String responseMime;
+  final String requestRaw;
+  final String responseRaw;
 
   const HarEntryDetail({
     required this.id,
@@ -48,11 +56,19 @@ class HarEntryDetail {
     required this.url,
     required this.status,
     required this.timeMs,
+    required this.size,
+    required this.httpVersion,
+    required this.statusText,
     required this.requestHeaders,
     required this.responseHeaders,
+    required this.cookies,
+    required this.query,
     required this.requestBody,
     required this.responseBody,
-    required this.mimeType,
+    required this.requestMime,
+    required this.responseMime,
+    required this.requestRaw,
+    required this.responseRaw,
   });
 
   @override
@@ -62,11 +78,19 @@ class HarEntryDetail {
       url.hashCode ^
       status.hashCode ^
       timeMs.hashCode ^
+      size.hashCode ^
+      httpVersion.hashCode ^
+      statusText.hashCode ^
       requestHeaders.hashCode ^
       responseHeaders.hashCode ^
+      cookies.hashCode ^
+      query.hashCode ^
       requestBody.hashCode ^
       responseBody.hashCode ^
-      mimeType.hashCode;
+      requestMime.hashCode ^
+      responseMime.hashCode ^
+      requestRaw.hashCode ^
+      responseRaw.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -78,11 +102,19 @@ class HarEntryDetail {
           url == other.url &&
           status == other.status &&
           timeMs == other.timeMs &&
+          size == other.size &&
+          httpVersion == other.httpVersion &&
+          statusText == other.statusText &&
           requestHeaders == other.requestHeaders &&
           responseHeaders == other.responseHeaders &&
+          cookies == other.cookies &&
+          query == other.query &&
           requestBody == other.requestBody &&
           responseBody == other.responseBody &&
-          mimeType == other.mimeType;
+          requestMime == other.requestMime &&
+          responseMime == other.responseMime &&
+          requestRaw == other.requestRaw &&
+          responseRaw == other.responseRaw;
 }
 
 class HarEntrySummary {

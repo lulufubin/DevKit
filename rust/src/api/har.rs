@@ -23,11 +23,19 @@ pub struct HarEntryDetail {
     pub url: String,
     pub status: i32,
     pub time_ms: f64,
+    pub size: i64,
+    pub http_version: String,
+    pub status_text: String,
     pub request_headers: Vec<HarHeader>,
     pub response_headers: Vec<HarHeader>,
+    pub cookies: Vec<HarHeader>,
+    pub query: Vec<HarHeader>,
     pub request_body: String,
     pub response_body: String,
-    pub mime_type: String,
+    pub request_mime: String,
+    pub response_mime: String,
+    pub request_raw: String,
+    pub response_raw: String,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -98,6 +106,13 @@ fn summary(item: core::HarEntrySummary) -> HarEntrySummary {
     }
 }
 
+fn header(item: core::HarHeader) -> HarHeader {
+    HarHeader {
+        name: item.name,
+        value: item.value,
+    }
+}
+
 fn detail(item: core::HarEntryDetail) -> HarEntryDetail {
     HarEntryDetail {
         id: item.id,
@@ -105,24 +120,18 @@ fn detail(item: core::HarEntryDetail) -> HarEntryDetail {
         url: item.url,
         status: item.status,
         time_ms: item.time_ms,
-        request_headers: item
-            .request_headers
-            .into_iter()
-            .map(|h| HarHeader {
-                name: h.name,
-                value: h.value,
-            })
-            .collect(),
-        response_headers: item
-            .response_headers
-            .into_iter()
-            .map(|h| HarHeader {
-                name: h.name,
-                value: h.value,
-            })
-            .collect(),
+        size: item.size,
+        http_version: item.http_version,
+        status_text: item.status_text,
+        request_headers: item.request_headers.into_iter().map(header).collect(),
+        response_headers: item.response_headers.into_iter().map(header).collect(),
+        cookies: item.cookies.into_iter().map(header).collect(),
+        query: item.query.into_iter().map(header).collect(),
         request_body: item.request_body.unwrap_or_default(),
         response_body: item.response_body.unwrap_or_default(),
-        mime_type: item.response_mime.unwrap_or_default(),
+        request_mime: item.request_mime.unwrap_or_default(),
+        response_mime: item.response_mime.unwrap_or_default(),
+        request_raw: item.request_raw,
+        response_raw: item.response_raw,
     }
 }
