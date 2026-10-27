@@ -11,7 +11,7 @@ DevKit 是跨平台桌面工作台（Windows / macOS / Linux）：Flutter 做界
 - Flutter 在仓库根目录；FRB crate 在 `rust/`；共享逻辑在 `crates/core`。
 - 给 Dart 的 API 写在 `rust/src/api/`。跨 crate 类型必须在 api 模块里重新定义，不要 `pub use` 到 FRB。
 - 生成代码在 `lib/src/rust/` 与 `rust/src/frb_generated.*`，不要手改。
-- 文本类工具上限约 20MB。密钥只在会话内使用，不写磁盘、不写日志。不做 HAR 重放。
+- JSON / 加解密等文本类工具上限约 20MB；HAR 导入不设文件大小上限。密钥只在会话内使用，不写磁盘、不写日志。不做 HAR 重放。
 - `crates/core` 的流式 age 加解密不要删掉。
 
 ## 约定
